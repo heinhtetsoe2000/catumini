@@ -1,74 +1,32 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-
-        <title>{{ config('app.name', 'Mimi') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-    </head>
-    <body>
-        <h1 class="text-3xl font-bold underline">
-            {{ number_format($total) }}
-        </h1>
-        <p class="text-sm text-gray-500">
-            {{ now()->format('M d, Y') }}
-        </p>
-        <div class="container">
-            <div class="card">
-                <p class="title">{{ number_format($total) }}</p>
-                <p class="subtitle">{{ now()->format('M d, Y') }}</p>
-            </div>
-
-            <div class="card expenses-list">
-                @forelse ($expenses as $expense)
-                    <div class="expense-item">
-                        <span class="expense-item-name">{{ $expense->name }}</span>
-                        <span class="expense-item-amount">{{ number_format($expense->amount) }}</span>
-                    </div>
-                @empty
-                    <p class="no-expenses-message">No expenses yet</p>
-                @endforelse
-            </div>
-
-            <a href="/add-expense">
-                <button class="add-expense-button" type="button">
-                    +
-                </button>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-blue-800 dark:text-blue-200 leading-tight flex items-center justify-between">
+            Today
+            <a href="{{ route('add-expense') }}" class="bg-blue-500 text-white px-4 py-2 text-sm font-medium rounded-md dark:bg-blue-600 dark:text-white">
+                Add Expense
             </a>
+        </h2>
+    </x-slot>
 
-            <native:bottom-nav>
-                <native:bottom-nav-item
-                    id="home"
-                    icon="house.fill"
-                    label="Home"
-                    url="/"
-                    :active="true"
-                />
-                <native:bottom-nav-item
-                    id="add-expense"
-                    icon="plus.circle.fill"
-                    label="Add Expense"
-                    url="/add-expense"
-                    :active="request()->is('add-expense*')"
-                />
-                <native:bottom-nav-item
-                    id="about"
-                    icon="info.circle.fill"
-                    label="About"
-                    url="/about"
-                    :active="request()->is('about*')"
-                />
-                <native:bottom-nav-item
-                    id="settings"
-                    icon="gearshape.fill"
-                    label="Settings"
-                    url="/settings"
-                    :active="request()->is('settings*')"
-                />
-            </native:bottom-nav>
+    <div>
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm">
+            <div class="p-6 text-gray-900 dark:text-gray-100">
+                <h1 class="text-4xl text-center font-bold">
+                    {{ number_format($total) }} Ks
+                </h1>
+
+                <p class="text-sm text-gray-500 text-center">
+                    {{ now()->format('M d, Y') }}
+                </p>
+            </div>
         </div>
-    </body>
-</html>
+
+        <div class="mt-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            @forelse ($expenses as $expense)
+                <x-expense-record :expense="$expense" />
+            @empty
+                <p class="text-sm text-gray-500 my-4 text-center">No expenses yet</p>
+            @endforelse
+        </div>
+    </div>
+</x-app-layout>
