@@ -1,20 +1,20 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-serif font-semibold text-xl text-ink dark:text-ink-invert leading-tight">
             {{ __('Monthly') }}
         </h2>
     </x-slot>
 
     <div>
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900 dark:text-gray-100">
-                <p class="text-sm text-gray-500 text-center">
+        <div class="bg-paper-elevated dark:bg-paper-dark-elevated overflow-hidden border-b border-ink/10 dark:border-ink-invert/10 sm:rounded-lg">
+            <div class="p-6 text-ink dark:text-ink-invert">
+                <p class="text-sm text-ink-muted text-center">
                     {{ now()->format('M Y') }}
                 </p>
-                <h1 class="text-3xl text-center font-bold flex justify-center items-center">
+                <h1 class="text-3xl text-center font-serif font-bold flex justify-center items-center">
                     {{ number_format($total) }} Ks
                 </h1>
-                <p class="text-sm text-blue-500 text-center">
+                <p class="text-sm text-accent dark:text-accent-dark text-center">
                     Avg: {{ number_format($average) }} Ks
                 </p>
             </div>
@@ -24,7 +24,7 @@
             @forelse ($expenses as $date => $amount)
                 <x-expense-record :name="$date" :amount="$amount" />
             @empty
-                <p class="text-sm text-gray-500 my-4 text-center">No expenses this month</p>
+                <p class="text-sm text-ink-muted my-4 text-center">No expenses this month</p>
             @endforelse
         </div>
     </div>
