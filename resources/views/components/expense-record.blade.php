@@ -6,21 +6,21 @@
     $displayDescription = $expense?->description ?? $description;
 @endphp
 
-<div class="p-4 flex flex-wrap items-center justify-between gap-2 bg-paper-elevated dark:bg-paper-dark-elevated overflow-hidden border border-ink/10 dark:border-ink-invert/10 my-2 rounded-lg">
-    <div class="flex flex-col min-w-0">
-        <span class="text-sm text-ink font-bold dark:text-ink-invert">{{ $displayName }}</span>
+<div class="my-2 flex flex-wrap items-center justify-between gap-2 overflow-hidden rounded-lg border border-ink/10 bg-paper-elevated p-4 dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
+    <div class="flex min-w-0 flex-col">
+        <span class="text-sm font-bold text-ink dark:text-ink-invert">{{ $displayName }}</span>
         @if ($displayDescription)
             <span class="text-sm text-ink-muted dark:text-ink-soft">{{ $displayDescription }}</span>
         @endif
     </div>
     <div class="flex items-center gap-3">
-        <span class="text-sm font-bold text-accent dark:text-accent-dark">{{ number_format($displayAmount) }} Ks</span>
+        <span class="text-sm font-bold text-accent">{{ number_format($displayAmount) }} Ks</span>
         @if ($expense)
-            <a href="{{ route('expenses.edit', $expense) }}" class="text-sm text-accent dark:text-accent-dark">Edit</a>
+            <flux:button :href="route('expenses.edit', $expense)" variant="ghost" size="sm" icon="pencil" />
             <form action="{{ route('expenses.destroy', $expense) }}" method="post" onsubmit="return confirm('Delete this expense?');">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="text-sm text-red-600 dark:text-red-400">Delete</button>
+                <flux:button type="submit" variant="danger" size="sm" icon="trash" />
             </form>
         @endif
     </div>

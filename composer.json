@@ -23,6 +23,7 @@
         "laravel/framework": "^12.0",
         "laravel/nightwatch": "^1.28",
         "laravel/tinker": "^2.10.1",
+        "livewire/flux": "^2.15",
         "nativephp/mobile": "^3.0",
         "spatie/laravel-data": "^4.23"
     },

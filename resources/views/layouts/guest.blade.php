@@ -11,16 +11,19 @@
         <link href="https://fonts.bunny.net/css?family=source-sans-3:400,500,600|source-serif-4:600,700&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @fluxAppearance
     </head>
-    <body class="font-sans text-ink dark:text-ink-invert antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-paper dark:bg-paper-dark">
+    <body class="font-sans text-ink antialiased dark:text-ink-invert">
+        <div class="flex min-h-screen flex-col items-center bg-paper pt-6 sm:justify-center sm:pt-0 dark:bg-paper-dark">
             <div>
                 <x-application-wordmark :href="url('/')" class="text-3xl" />
             </div>
 
-            <div class="w-full sm:max-w-md mt-8 px-6 py-5 bg-paper-elevated dark:bg-paper-dark-elevated border border-ink/10 dark:border-ink-invert/10 overflow-hidden sm:rounded-lg">
+            <div class="mt-8 w-full overflow-hidden border border-ink/10 bg-paper-elevated px-6 py-5 sm:max-w-md sm:rounded-lg dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
                 {{ $slot }}
             </div>
         </div>
+
+        @fluxScripts
     </body>
 </html>

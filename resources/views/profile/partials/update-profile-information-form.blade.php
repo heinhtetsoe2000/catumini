@@ -1,12 +1,9 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Profile Information') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <flux:heading size="lg">{{ __('Profile Information') }}</flux:heading>
+        <flux:subheading class="mt-1">
             {{ __("Update your account's profile information and email address.") }}
-        </p>
+        </flux:subheading>
     </header>
 
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
@@ -18,28 +15,43 @@
         @method('patch')
 
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+            <flux:input
+                id="name"
+                name="name"
+                type="text"
+                label="{{ __('Name') }}"
+                value="{{ old('name', $user->name) }}"
+                required
+                autofocus
+                autocomplete="name"
+            />
+            <flux:error name="name" />
         </div>
 
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+            <flux:input
+                id="email"
+                name="email"
+                type="email"
+                label="{{ __('Email') }}"
+                value="{{ old('email', $user->email) }}"
+                required
+                autocomplete="username"
+            />
+            <flux:error name="email" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                 <div>
-                    <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
+                    <flux:text class="mt-2">
                         {{ __('Your email address is unverified.') }}
 
-                        <button form="send-verification" class="underline text-sm text-ink-muted dark:text-ink-soft hover:text-ink dark:hover:text-ink-invert rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent dark:focus:ring-accent-dark">
+                        <button form="send-verification" class="text-sm text-ink-muted underline hover:text-ink dark:text-ink-soft dark:hover:text-ink-invert">
                             {{ __('Click here to re-send the verification email.') }}
                         </button>
-                    </p>
+                    </flux:text>
 
                     @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
+                        <p class="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
                             {{ __('A new verification link has been sent to your email address.') }}
                         </p>
                     @endif
@@ -48,7 +60,7 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <flux:button type="submit" variant="primary">{{ __('Save') }}</flux:button>
 
             @if (session('status') === 'profile-updated')
                 <p
@@ -56,7 +68,7 @@
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600 dark:text-gray-400"
+                    class="text-sm text-ink-muted"
                 >{{ __('Saved.') }}</p>
             @endif
         </div>

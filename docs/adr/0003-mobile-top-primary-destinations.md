@@ -1,0 +1,3 @@
+# Always-visible mobile top destinations
+
+On small screens, **Today** and **Monthly** lived only behind a hamburger, which made the main ledger switch tedious on iPhone Safari. We keep them as top-bar primary destinations: calendar-day / calendar-month icons with glossary `aria-label`s on mobile, text labels on desktop; account is a compact avatar control (Profile / Log Out)—no hamburger drawer. Wordmark still links to **Today**; **Add Expense** stays a Today CTA, not a shell peer; current state is exact `home` / `dashboard` only. We rejected burying peers in a menu, a bottom tab bar (kept out of the Flux shell IA), icon-only desktop, house/chart icons (Home/Dashboard confusion), and dirty-form leave guards for this change.
