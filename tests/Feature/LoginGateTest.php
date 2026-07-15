@@ -29,6 +29,11 @@ it('shows wordmark branding on login without the laravel logo', function () {
     $response = $this->get(route('login'));
 
     $response->assertSuccessful();
-    $response->assertSee(config('app.name'), false);
-    $response->assertDontSee('viewBox="0 0 316 316"', false);
+
+    $html = $response->getContent();
+
+    expect($html)
+        ->toContain((string) config('app.name'))
+        ->and($html)->not->toContain('viewBox="0 0 316 316"')
+        ->and(strlen($html))->toBeGreaterThan(100);
 });

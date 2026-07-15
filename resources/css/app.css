@@ -1,6 +1,49 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/**/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: 'Source Serif 4', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+
+    --color-paper: #f3f5f7;
+    --color-paper-elevated: #ffffff;
+    --color-paper-dark: #12151a;
+    --color-paper-dark-elevated: #1a1f26;
+
+    --color-ink: #1a1f26;
+    --color-ink-muted: #5c6570;
+    --color-ink-soft: #8b939e;
+    --color-ink-invert: #e8eaed;
+
+    --color-accent: #0f766e;
+    --color-accent-content: #0f766e;
+    --color-accent-foreground: #ffffff;
+    --color-accent-hover: #0d9488;
+    --color-accent-muted: #ccfbf1;
+    --color-accent-dark: #2dd4bf;
+    --color-accent-dark-hover: #5eead4;
+}
+
+@layer theme {
+    .dark {
+        --color-accent: #2dd4bf;
+        --color-accent-content: #5eead4;
+        --color-accent-foreground: #12151a;
+    }
+}
+
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+}
 
 @layer utilities {
     @keyframes gate-rise {

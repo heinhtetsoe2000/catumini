@@ -11,22 +11,23 @@
         <link href="https://fonts.bunny.net/css?family=source-sans-3:400,500,600|source-serif-4:600,700&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @fluxAppearance
     </head>
-    <body class="font-sans antialiased nativephp-safe-area text-ink dark:text-ink-invert">
-        <div class="min-h-screen bg-paper dark:bg-paper-dark">
-            @include('layouts.navigation')
+    <body class="min-h-screen font-sans antialiased nativephp-safe-area bg-paper text-ink dark:bg-paper-dark dark:text-ink-invert">
+        @include('layouts.navigation')
 
-            @isset($header)
-                <header class="bg-paper-elevated dark:bg-paper-dark-elevated border-b border-ink/10 dark:border-ink-invert/10">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+        @isset($header)
+            <header class="border-b border-ink/10 bg-paper-elevated dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
+                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                    {{ $header }}
+                </div>
+            </header>
+        @endisset
 
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
+        <main>
+            {{ $slot }}
+        </main>
+
+        @fluxScripts
     </body>
 </html>

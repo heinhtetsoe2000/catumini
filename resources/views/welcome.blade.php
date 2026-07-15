@@ -11,9 +11,10 @@
         <link href="https://fonts.bunny.net/css?family=source-sans-3:400,500,600|source-serif-4:600,700&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @fluxAppearance
     </head>
     <body class="font-sans antialiased text-ink dark:text-ink-invert">
-        <main class="min-h-screen flex flex-col items-center justify-center px-6 bg-paper dark:bg-paper-dark">
+        <main class="flex min-h-screen flex-col items-center justify-center bg-paper px-6 dark:bg-paper-dark">
             <div class="w-full max-w-sm text-center">
                 <h1 class="gate-enter">
                     <x-application-wordmark class="text-4xl sm:text-5xl" />
@@ -23,13 +24,14 @@
                     Your personal expense ledger.
                 </p>
 
-                <a
-                    href="{{ route('login') }}"
-                    class="gate-enter-delay-2 mt-10 inline-flex items-center justify-center w-full sm:w-auto px-8 py-3 rounded-md bg-accent text-white font-medium text-sm tracking-wide hover:bg-accent-hover dark:bg-accent-dark dark:text-paper-dark dark:hover:bg-accent-dark-hover focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-paper dark:focus:ring-offset-paper-dark transition"
-                >
-                    Login
-                </a>
+                <div class="gate-enter-delay-2 mt-10 flex justify-center">
+                    <flux:button :href="route('login')" variant="primary" class="w-full sm:w-auto">
+                        Login
+                    </flux:button>
+                </div>
             </div>
         </main>
+
+        @fluxScripts
     </body>
 </html>

@@ -61,6 +61,10 @@ _Avoid_: Welcome page, marketing landing, treating `/` as Home/Today
 - "Home" in the nav means the **Today** view (`/home`), not a marketing landing page or the **Login gate**.
 - "Welcome" / default Laravel-NativePHP splash means the **Login gate** after this change — not a product pitch or framework starter screen.
 - "Dashboard" in the nav means the **Monthly** view, not general analytics.
+- Mobile shell may show calendar-day / calendar-month icons for **Today** / **Monthly**; labels and `aria-label`s stay those glossary names — never house (“Home”) or chart (“Dashboard analytics”) icons.
 - "Account" means the **Owner** login identity, not a bank account.
 - On-screen product name is `APP_NAME` / `config('app.name')`, not a hard-coded marketing name (e.g. avoid treating "Mimi" as the glossary brand).
 - Visual system decisions live in `docs/adr/0001-ledger-ink-visual-system.md`, not in this glossary.
+- UI component kit (Flux Free on Blade controllers) lives in `docs/adr/0002-flux-free-blade-ui-kit.md`, not in this glossary.
+- Mobile always-visible **Today** / **Monthly** top destinations (icons on small screens, text on desktop; no hamburger) live in `docs/adr/0003-mobile-top-primary-destinations.md`, not in this glossary.
+- “Public launch later” means a future multi-user phase (many ledger accounts, registration model TBD) — it does **not** change the current MVP: one **Owner**, **Closed registration**. Do not redefine **Owner** until that phase is designed.
