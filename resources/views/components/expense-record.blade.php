@@ -6,17 +6,17 @@
     $displayDescription = $expense?->description ?? $description;
 @endphp
 
-<div class="p-4 flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-gray-800 overflow-hidden shadow-sm my-2 rounded-lg">
+<div class="p-4 flex flex-wrap items-center justify-between gap-2 bg-paper-elevated dark:bg-paper-dark-elevated overflow-hidden border border-ink/10 dark:border-ink-invert/10 my-2 rounded-lg">
     <div class="flex flex-col min-w-0">
-        <span class="text-sm text-black font-bold dark:text-white">{{ $displayName }}</span>
+        <span class="text-sm text-ink font-bold dark:text-ink-invert">{{ $displayName }}</span>
         @if ($displayDescription)
-            <span class="text-sm text-gray-500 dark:text-gray-400">{{ $displayDescription }}</span>
+            <span class="text-sm text-ink-muted dark:text-ink-soft">{{ $displayDescription }}</span>
         @endif
     </div>
     <div class="flex items-center gap-3">
-        <span class="text-sm font-bold text-green-500 dark:text-green-400">{{ number_format($displayAmount) }} Ks</span>
+        <span class="text-sm font-bold text-accent dark:text-accent-dark">{{ number_format($displayAmount) }} Ks</span>
         @if ($expense)
-            <a href="{{ route('expenses.edit', $expense) }}" class="text-sm text-blue-600 dark:text-blue-400">Edit</a>
+            <a href="{{ route('expenses.edit', $expense) }}" class="text-sm text-accent dark:text-accent-dark">Edit</a>
             <form action="{{ route('expenses.destroy', $expense) }}" method="post" onsubmit="return confirm('Delete this expense?');">
                 @csrf
                 @method('DELETE')

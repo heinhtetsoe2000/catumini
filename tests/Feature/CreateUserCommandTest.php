@@ -20,7 +20,7 @@ test('user create command creates a login-ready user with email and password', f
     $this->post('/login', [
         'email' => 'owner@example.com',
         'password' => 'password',
-    ])->assertRedirect(route('dashboard', absolute: false));
+    ])->assertRedirect(route('home', absolute: false));
 
     $this->assertAuthenticatedAs($user);
 });

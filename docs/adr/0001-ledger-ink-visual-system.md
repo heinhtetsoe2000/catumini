@@ -1,0 +1,3 @@
+# Ledger ink visual system
+
+The app still showed a NativePHP/Breeze starter look while the product is a personal expense ledger for one Owner on mobile web. We adopted a shared **ledger ink** theme for the Login gate, guest auth (login and pages using the guest layout), and the authenticated shell: paper-light plus a deliberate dark-ink pair via system preference; wordmark-only brand (`APP_NAME`, no logo mark); serif for product name / titles and sans for body/forms; teal/verdigris for primary actions. We rejected keeping stock Breeze blue/Figtree-only polish, a dark-first UI, and auth-only theming so the phone experience reads as one product—not a framework splash plus a gray dashboard.
