@@ -1,21 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-blue-800 dark:text-blue-200 leading-tight flex items-center justify-between">
+        <h2 class="font-serif font-semibold text-xl text-ink dark:text-ink-invert leading-tight flex items-center justify-between">
             Today
-            <a href="{{ route('add-expense') }}" class="bg-blue-500 text-white px-4 py-2 text-sm font-medium rounded-md dark:bg-blue-600 dark:text-white">
+            <a href="{{ route('add-expense') }}" class="bg-accent text-white px-4 py-2 text-sm font-medium rounded-md dark:bg-accent-dark dark:text-paper-dark hover:bg-accent-hover dark:hover:bg-accent-dark-hover">
                 Add Expense
             </a>
         </h2>
     </x-slot>
 
     <div>
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm">
-            <div class="p-6 text-gray-900 dark:text-gray-100">
-                <h1 class="text-4xl text-center font-bold">
+        <div class="bg-paper-elevated dark:bg-paper-dark-elevated overflow-hidden border-b border-ink/10 dark:border-ink-invert/10">
+            <div class="p-6 text-ink dark:text-ink-invert">
+                <h1 class="text-4xl text-center font-serif font-bold">
                     {{ number_format($total) }} Ks
                 </h1>
 
-                <p class="text-sm text-gray-500 text-center">
+                <p class="text-sm text-ink-muted text-center">
                     {{ now()->format('M d, Y') }}
                 </p>
             </div>
@@ -25,7 +25,7 @@
             @forelse ($expenses as $expense)
                 <x-expense-record :expense="$expense" />
             @empty
-                <p class="text-sm text-gray-500 my-4 text-center">No expenses yet</p>
+                <p class="text-sm text-ink-muted my-4 text-center">No expenses yet</p>
             @endforelse
         </div>
     </div>

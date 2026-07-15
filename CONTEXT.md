@@ -36,20 +36,31 @@ _Avoid_: Invite codes, open register for MVP
 Ship as an HTTPS web app usable on iPhone Safari (optional Add to Home Screen). Not a NativePHP binary or store listing.
 _Avoid_: Treating EDGE / `native:*` chrome as required for MVP
 
+**Login gate**:
+The public entry for guests before authentication: product name, one short line stating this is a personal expense ledger, and a Login action — no marketing, registration, framework promo, or logo mark.
+_Avoid_: Welcome page, marketing landing, treating `/` as Home/Today
+
 ## Relationships
 
 - An **Owner** has many **Expenses**
 - An **Expense** has exactly one **Spend date**
 - **Today** and **Monthly** are views over **Expenses** filtered by **Spend date** in Asia/Yangon
 - **Ks** labels the integer **amount** on an **Expense**
+- A guest reaches the ledger through the **Login gate**; an authenticated **Owner** opening `/` goes to **Today**
 
 ## Example dialogue
 
 > **Dev:** "If the Owner logs Monday's lunch on Tuesday night, which day does it count toward?"
 > **Domain expert:** "Whatever they set as the **Spend date**. If they pick Monday, it belongs to Monday's **Today** (when that day was current) and that week's **Monthly** day group — not Tuesday's **created_at**."
 
+> **Dev:** "Is the page at `/` the Home screen?"
+> **Domain expert:** "No — that's the **Login gate**. **Home** in the nav is **Today**. If you're already signed in, `/` should take you straight to **Today**."
+
 ## Flagged ambiguities
 
-- "Home" in the nav means the **Today** view (`/home`), not a marketing landing page.
+- "Home" in the nav means the **Today** view (`/home`), not a marketing landing page or the **Login gate**.
+- "Welcome" / default Laravel-NativePHP splash means the **Login gate** after this change — not a product pitch or framework starter screen.
 - "Dashboard" in the nav means the **Monthly** view, not general analytics.
 - "Account" means the **Owner** login identity, not a bank account.
+- On-screen product name is `APP_NAME` / `config('app.name')`, not a hard-coded marketing name (e.g. avoid treating "Mimi" as the glossary brand).
+- Visual system decisions live in `docs/adr/0001-ledger-ink-visual-system.md`, not in this glossary.

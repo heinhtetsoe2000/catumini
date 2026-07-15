@@ -27,7 +27,7 @@ test('seeded owner can still log in', function () {
     $this->post('/login', [
         'email' => $user->email,
         'password' => 'password',
-    ])->assertRedirect(route('dashboard', absolute: false));
+    ])->assertRedirect(route('home', absolute: false));
 
     $this->assertAuthenticatedAs($user);
 });
