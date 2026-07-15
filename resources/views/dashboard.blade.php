@@ -1,30 +1,30 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-serif font-semibold text-xl text-ink dark:text-ink-invert leading-tight">
+        <flux:heading size="lg" class="!font-serif text-ink dark:text-ink-invert">
             {{ __('Monthly') }}
-        </h2>
+        </flux:heading>
     </x-slot>
 
     <div>
-        <div class="bg-paper-elevated dark:bg-paper-dark-elevated overflow-hidden border-b border-ink/10 dark:border-ink-invert/10 sm:rounded-lg">
+        <div class="overflow-hidden border-b border-ink/10 bg-paper-elevated sm:rounded-lg dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
             <div class="p-6 text-ink dark:text-ink-invert">
-                <p class="text-sm text-ink-muted text-center">
+                <p class="text-center text-sm text-ink-muted">
                     {{ now()->format('M Y') }}
                 </p>
-                <h1 class="text-3xl text-center font-serif font-bold flex justify-center items-center">
+                <h1 class="flex items-center justify-center text-center font-serif text-3xl font-bold">
                     {{ number_format($total) }} Ks
                 </h1>
-                <p class="text-sm text-accent dark:text-accent-dark text-center">
+                <p class="text-center text-sm text-accent">
                     Avg: {{ number_format($average) }} Ks
                 </p>
             </div>
         </div>
 
-        <div class="mt-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
             @forelse ($expenses as $date => $amount)
                 <x-expense-record :name="$date" :amount="$amount" />
             @empty
-                <p class="text-sm text-ink-muted my-4 text-center">No expenses this month</p>
+                <flux:text class="my-4 text-center text-ink-muted">No expenses this month</flux:text>
             @endforelse
         </div>
     </div>

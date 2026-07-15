@@ -1,31 +1,37 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-serif font-semibold text-xl text-ink dark:text-ink-invert leading-tight flex items-center justify-between">
-            Today
-            <a href="{{ route('add-expense') }}" class="bg-accent text-white px-4 py-2 text-sm font-medium rounded-md dark:bg-accent-dark dark:text-paper-dark hover:bg-accent-hover dark:hover:bg-accent-dark-hover">
-                Add Expense
-            </a>
-        </h2>
+        <div class="flex items-center justify-between gap-4">
+            <flux:heading size="lg" class="!font-serif text-ink dark:text-ink-invert">
+                Today
+            </flux:heading>
+            <flux:button
+                :href="route('add-expense')"
+                variant="primary"
+                size="sm"
+                icon="plus"
+                aria-label="{{ __('Add Expense') }}"
+            />
+        </div>
     </x-slot>
 
     <div>
-        <div class="bg-paper-elevated dark:bg-paper-dark-elevated overflow-hidden border-b border-ink/10 dark:border-ink-invert/10">
+        <div class="overflow-hidden border-b border-ink/10 bg-paper-elevated dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
             <div class="p-6 text-ink dark:text-ink-invert">
-                <h1 class="text-4xl text-center font-serif font-bold">
+                <h1 class="text-center font-serif text-4xl font-bold">
                     {{ number_format($total) }} Ks
                 </h1>
 
-                <p class="text-sm text-ink-muted text-center">
+                <p class="text-center text-sm text-ink-muted">
                     {{ now()->format('M d, Y') }}
                 </p>
             </div>
         </div>
 
-        <div class="mt-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
             @forelse ($expenses as $expense)
                 <x-expense-record :expense="$expense" />
             @empty
-                <p class="text-sm text-ink-muted my-4 text-center">No expenses yet</p>
+                <flux:text class="my-4 text-center text-ink-muted">No expenses yet</flux:text>
             @endforelse
         </div>
     </div>
