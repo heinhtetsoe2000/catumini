@@ -11,6 +11,7 @@
         <link href="https://fonts.bunny.net/css?family=source-sans-3:400,500,600|source-serif-4:600,700&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireStyles
         @fluxAppearance
     </head>
     <body class="min-h-screen font-sans antialiased nativephp-safe-area bg-paper text-ink dark:bg-paper-dark dark:text-ink-invert">
@@ -28,6 +29,7 @@
             {{ $slot }}
         </main>
 
+        @livewireScripts
         @fluxScripts
     </body>
 </html>
