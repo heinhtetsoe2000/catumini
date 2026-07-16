@@ -25,6 +25,8 @@ new class extends Component
 
     public function update()
     {
+        abort_unless($this->expense->isOwnedBy(auth()->user()), 403);
+
         $this->expense->update($this->validate([
             'name' => 'required|max:255',
             'amount' => 'required|numeric|min:0',
@@ -47,6 +49,8 @@ new class extends Component
 
     public function delete()
     {
+        abort_unless($this->expense->isOwnedBy(auth()->user()), 403);
+
         $this->expense->delete();
         $this->modal('delete-expense-' . $this->expense->id)->close();
     }

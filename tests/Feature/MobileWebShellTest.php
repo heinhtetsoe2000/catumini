@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Livewire\Livewire;
 
 test('today page does not render native edge components', function () {
     $user = User::factory()->create();
@@ -10,7 +11,6 @@ test('today page does not render native edge components', function () {
     $response->assertSuccessful();
     $response->assertDontSee('native:top-bar', false);
     $response->assertDontSee('native:bottom-nav', false);
-    $response->assertSee(route('add-expense'), false);
     $response->assertSee('Add Expense', false);
     $response->assertSee(__('Today'), false);
     $response->assertSee(__('Monthly'), false);
@@ -20,24 +20,24 @@ test('today page does not render native edge components', function () {
     $response->assertSee('data-flux-navbar', false);
 });
 
-test('add expense is only via the Today CTA not a top-nav peer', function () {
+test('add expense is only via the Today modal CTA not a top-nav peer', function () {
     $user = User::factory()->create();
 
     $html = $this->actingAs($user)->get(route('home'))->getContent();
 
-    expect(preg_match_all('#href="[^"]*add-expense[^"]*"#', $html))->toBe(1)
+    expect(preg_match_all('#href="[^"]*add-expense[^"]*"#', $html))->toBe(0)
         ->and($html)->toContain('Add Expense')
+        ->and($html)->toContain('data-modal="add-expense"')
         ->and($html)->toContain('data-flux-navbar');
 });
 
-test('login gate and today keep classic form-post expense create path', function () {
+test('today creates expenses through the livewire home page', function () {
     $user = User::factory()->create();
 
-    $this->actingAs($user)
-        ->get(route('add-expense'))
-        ->assertSuccessful()
-        ->assertSee('action="'.route('home.store').'"', false)
-        ->assertSee('data-flux-button', false);
+    Livewire::actingAs($user)
+        ->test('pages::home')
+        ->assertSee('Add Expense')
+        ->assertSeeHtml('wire:submit="save"');
 });
 
 test('shell exposes today and monthly without hamburger drawer', function () {
@@ -57,7 +57,7 @@ test('shell exposes today and monthly without hamburger drawer', function () {
 test('secondary screens do not mark today or monthly as current', function () {
     $user = User::factory()->create();
 
-    $html = $this->actingAs($user)->get(route('add-expense'))->getContent();
+    $html = $this->actingAs($user)->get(route('profile.edit'))->getContent();
 
     expect($html)->not->toContain('data-current="data-current"')
         ->and($html)->not->toContain('bars-3')
