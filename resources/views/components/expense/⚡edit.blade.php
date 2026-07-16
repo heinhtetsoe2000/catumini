@@ -53,6 +53,8 @@ new class extends Component
 
         $this->expense->delete();
         $this->modal('delete-expense-' . $this->expense->id)->close();
+
+        $this->dispatch('deleted');
     }
 };
 ?>

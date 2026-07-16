@@ -103,7 +103,7 @@ new class extends Component
 
         <div class="mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
             @forelse ($this->expenses as $expense)
-                <livewire:expense.edit :expense="$expense" />
+                <livewire:expense.edit :expense="$expense" @deleted="$refresh" />
             @empty
                 <flux:text class="my-4 text-center text-ink-muted">No expenses yet</flux:text>
             @endforelse
