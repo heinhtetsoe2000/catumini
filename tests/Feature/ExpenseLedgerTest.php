@@ -40,7 +40,7 @@ test('user can create an expense with a backdated spend date', function () {
         ->toBe($spentOn);
 });
 
-test('today view only includes expenses spent today', function () {
+test('today total only includes expenses spent today', function () {
     $user = User::factory()->create();
 
     Expense::factory()->create([
@@ -57,12 +57,11 @@ test('today view only includes expenses spent today', function () {
         'spent_on' => now()->subDay()->toDateString(),
     ]);
 
-    $response = $this->actingAs($user)->get(route('home'));
-
-    $response->assertSuccessful();
-    $response->assertSee('Today lunch');
-    $response->assertDontSee('Yesterday lunch');
-    $response->assertSee('5,000 Ks');
+    Livewire::actingAs($user)
+        ->test('pages::home')
+        ->assertSet('total', 5000)
+        ->assertSee('5,000 Ks')
+        ->assertDontSee('9,000 Ks');
 });
 
 test('history view groups by spend date and handles empty month', function () {
@@ -125,40 +124,62 @@ test('empty home day shows zero spend summary', function () {
         ->assertSeeHtml("You haven't spent any.");
 });
 
-test('user can navigate to the previous day and see that days expenses', function () {
+test('user can navigate to the previous day and see that days total', function () {
     $user = User::factory()->create();
 
     Expense::factory()->create([
         'user_id' => $user->id,
-        'name' => 'Today coffee',
         'amount' => 1500,
         'spent_on' => now()->toDateString(),
     ]);
 
     Expense::factory()->create([
         'user_id' => $user->id,
-        'name' => 'Yesterday dinner',
         'amount' => 9000,
         'spent_on' => now()->subDay()->toDateString(),
     ]);
 
-    $component = Livewire::actingAs($user)
+    Livewire::actingAs($user)
         ->test('pages::home')
         ->assertSet('total', 1500)
-        ->assertSee('Today coffee');
-
-    expect($component->get('expenses')->pluck('name')->all())
-        ->toContain('Today coffee')
-        ->not->toContain('Yesterday dinner');
-
-    $component
+        ->assertSee(__('Today'))
         ->call('previousDay')
         ->assertSet('total', 9000)
-        ->assertSee(now()->subDay()->format('M d, Y'));
+        ->assertSee(now()->subDay()->format('M d, Y'))
+        ->assertSee('9,000 Ks');
+});
 
-    expect($component->get('expenses')->pluck('name')->all())
-        ->toContain('Yesterday dinner')
-        ->not->toContain('Today coffee');
+test('next day is disabled when viewing today', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::home')
+        ->assertSeeHtml('wire:click="nextDay"')
+        ->assertSeeHtml('disabled="disabled"');
+});
+
+test('user can navigate forward after going back a day', function () {
+    $user = User::factory()->create();
+
+    Expense::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 1500,
+        'spent_on' => now()->toDateString(),
+    ]);
+
+    Expense::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 9000,
+        'spent_on' => now()->subDay()->toDateString(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test('pages::home')
+        ->call('previousDay')
+        ->assertSet('total', 9000)
+        ->call('nextDay')
+        ->assertSet('total', 1500)
+        ->assertSee(__('Today'));
 });
 
 test('home summary compares spend to the monthly daily average', function () {

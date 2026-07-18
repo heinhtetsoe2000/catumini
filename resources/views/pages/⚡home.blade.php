@@ -169,25 +169,4 @@ new class extends Component
             </form>
         </div>
     </flux:modal>
-    <div>
-        <div class="overflow-hidden border-b border-ink/10 bg-paper-elevated dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
-            <div class="p-6 text-ink dark:text-ink-invert">
-                <h1 class="text-center font-serif text-4xl font-bold">
-                    {{ number_format($this->total) }} Ks
-                </h1>
-
-                <p class="text-center text-sm text-ink-muted">
-                    {{ now()->format('M d, Y') }}
-                </p>
-            </div>
-        </div>
-
-        <div class="mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
-            @forelse ($this->expenses as $expense)
-                <livewire:expense.edit :expense="$expense" @deleted="$refresh" />
-            @empty
-                <flux:text class="my-4 text-center text-ink-muted">No expenses yet</flux:text>
-            @endforelse
-        </div>
-    </div>
 </div>
