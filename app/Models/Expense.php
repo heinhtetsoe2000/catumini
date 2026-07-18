@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Database\Factories\ExpenseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -47,6 +48,11 @@ class Expense extends Model
     public function scopeToday(Builder $query): Builder
     {
         return $query->whereDate('spent_on', now()->toDateString());
+    }
+
+    public function scopeOfDay(Builder $query, Carbon $day): Builder
+    {
+        return $query->whereDate('spent_on', $day->toDateString());
     }
 
     public function scopeMonthly(Builder $query): Builder

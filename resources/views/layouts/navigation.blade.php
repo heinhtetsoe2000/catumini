@@ -4,58 +4,17 @@
             <div class="flex min-w-0 items-center gap-4 sm:gap-8">
                 <x-application-wordmark :href="route('home')" class="text-xl" />
 
-                <flux:navbar class="flex sm:hidden">
-                    <flux:navbar.item
-                        :href="route('home')"
-                        icon="calendar"
-                        :current="request()->routeIs('home')"
-                        aria-label="{{ __('Today') }}"
-                    />
-                    <flux:navbar.item
-                        :href="route('dashboard')"
-                        icon="calendar-days"
-                        :current="request()->routeIs('dashboard')"
-                        aria-label="{{ __('Monthly') }}"
-                    />
-                </flux:navbar>
-
                 <flux:navbar class="hidden sm:flex">
                     <flux:navbar.item :href="route('home')" :current="request()->routeIs('home')">
-                        {{ __('Today') }}
+                        {{ __('Home') }}
                     </flux:navbar.item>
                     <flux:navbar.item :href="route('dashboard')" :current="request()->routeIs('dashboard')">
-                        {{ __('Monthly') }}
+                        {{ __('History') }}
                     </flux:navbar.item>
                 </flux:navbar>
             </div>
 
             <div class="flex items-center">
-                <div class="sm:hidden">
-                    <flux:dropdown position="bottom" align="end">
-                        <flux:button
-                            variant="subtle"
-                            icon="user"
-                            aria-label="{{ __('Account') }}"
-                        />
-
-                        <flux:menu>
-                            <flux:menu.item :href="route('profile.edit')">
-                                {{ __('Profile') }}
-                            </flux:menu.item>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <flux:menu.item
-                                    as="button"
-                                    type="submit"
-                                    class="w-full"
-                                >
-                                    {{ __('Log Out') }}
-                                </flux:menu.item>
-                            </form>
-                        </flux:menu>
-                    </flux:dropdown>
-                </div>
-
                 <div class="hidden sm:block">
                     <flux:dropdown position="bottom" align="end">
                         <flux:button variant="subtle" icon:trailing="chevron-down">
@@ -63,7 +22,7 @@
                         </flux:button>
 
                         <flux:menu>
-                            <flux:menu.item :href="route('profile.edit')">
+                            <flux:menu.item :href="route('profile')">
                                 {{ __('Profile') }}
                             </flux:menu.item>
                             <form method="POST" action="{{ route('logout') }}">

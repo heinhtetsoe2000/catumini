@@ -13,7 +13,8 @@ test('today page does not render native edge components', function () {
     $response->assertDontSee('native:bottom-nav', false);
     $response->assertSee('Add Expense', false);
     $response->assertSee(__('Today'), false);
-    $response->assertSee(__('Monthly'), false);
+    $response->assertSee(__('Home'), false);
+    $response->assertSee(__('History'), false);
     $response->assertSee(__('Profile'), false);
     $response->assertSee(config('app.name'), false);
     $response->assertDontSee('viewBox="0 0 316 316"', false);
@@ -40,26 +41,30 @@ test('today creates expenses through the livewire home page', function () {
         ->assertSeeHtml('wire:submit="save"');
 });
 
-test('shell exposes today and monthly without hamburger drawer', function () {
+test('shell exposes home and history without hamburger drawer', function () {
     $user = User::factory()->create();
 
     $html = $this->actingAs($user)->get(route('home'))->getContent();
 
     expect($html)->not->toContain('bars-3')
         ->and($html)->not->toContain('Toggle navigation')
-        ->and($html)->toContain(__('Account'))
+        ->and($html)->toContain(__('Home'))
+        ->and($html)->toContain(__('History'))
+        ->and($html)->toContain(__('Profile'))
         ->and($html)->toContain(route('home'))
         ->and($html)->toContain(route('dashboard'))
-        ->and($html)->toContain(route('profile.edit'))
+        ->and($html)->toContain(route('profile'))
         ->and($html)->not->toContain('native:bottom-nav');
 });
 
-test('secondary screens do not mark today or monthly as current', function () {
+test('profile shell keeps home and history available without a hamburger drawer', function () {
     $user = User::factory()->create();
 
-    $html = $this->actingAs($user)->get(route('profile.edit'))->getContent();
+    $html = $this->actingAs($user)->get(route('profile'))->getContent();
 
-    expect($html)->not->toContain('data-current="data-current"')
-        ->and($html)->not->toContain('bars-3')
-        ->and($html)->toContain(__('Account'));
+    expect($html)->not->toContain('bars-3')
+        ->and($html)->not->toContain('Toggle navigation')
+        ->and($html)->toContain(__('Profile'))
+        ->and($html)->toContain(route('home'))
+        ->and($html)->toContain(route('dashboard'));
 });
