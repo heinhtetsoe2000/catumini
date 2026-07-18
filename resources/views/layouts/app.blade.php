@@ -29,6 +29,8 @@
             {{ $slot }}
         </main>
 
+        @include('layouts.bottom-navigation')
+
         @livewireScripts
         @fluxScripts
     </body>

@@ -3,7 +3,7 @@
 ])
 
 @php
-    $classes = 'font-serif font-semibold tracking-tight text-ink dark:text-ink-invert';
+    $classes = 'font-semibold tracking-tight text-ink dark:text-ink-invert';
 @endphp
 
 @if ($href)

@@ -1,7 +1,11 @@
 @props(['expense' => null, 'name' => null, 'amount' => null, 'description' => null])
 
 @php
-    $displayName = $expense?->name ?? $name;
+    $today = now()->format('D M d');
+    $yesterday = now()->subDay()->format('D M d');
+    $isToday = $name == $today;
+    $isYesterday = $name == $yesterday;
+    $displayName = $expense?->name ?? ($isToday ? 'Today' : ($isYesterday ? 'Yesterday' : $name));
     $displayAmount = $expense?->amount ?? $amount;
     $displayDescription = $expense?->description ?? $description;
 @endphp

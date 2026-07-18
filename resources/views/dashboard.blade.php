@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <flux:heading size="lg" class="!font-serif text-ink dark:text-ink-invert">
-            {{ __('Monthly') }}
+        <flux:heading size="lg" class="text-ink dark:text-ink-invert">
+            {{ __('History') }}
         </flux:heading>
     </x-slot>
 
@@ -11,7 +11,7 @@
                 <p class="text-center text-sm text-ink-muted">
                     {{ now()->format('M Y') }}
                 </p>
-                <h1 class="flex items-center justify-center text-center font-serif text-3xl font-bold">
+                <h1 class="flex items-center justify-center text-center text-3xl font-bold">
                     {{ number_format($total) }} Ks
                 </h1>
                 <p class="text-center text-sm text-accent">
