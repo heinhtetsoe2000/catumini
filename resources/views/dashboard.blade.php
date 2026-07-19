@@ -4,10 +4,6 @@
             <flux:heading size="lg" class="font-bold text-2xl dark:text-ink-invert">
                 {{ __('History') }}
             </flux:heading>
-
-            <flux:modal.trigger name="add-expense">
-                <flux:button icon="plus" class="rounded-full" />
-            </flux:modal.trigger>
         </div>
     </x-slot>
 
