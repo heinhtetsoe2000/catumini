@@ -12,7 +12,7 @@ class DashboardController extends Controller
         $expenses = Expense::query()
             ->currentUser()
             ->monthly()
-            ->orderBy('created_at', 'desc')
+            ->orderBy('spent_on', 'desc')
             ->get()
             ->groupBy(fn (Expense $expense): string => $expense->spent_on->format('D M d'))
             ->map(fn ($group) => $group->sum('amount'));

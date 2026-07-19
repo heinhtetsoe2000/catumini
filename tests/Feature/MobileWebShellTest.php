@@ -17,6 +17,7 @@ test('today page does not render native edge components', function () {
     $response->assertSee(__('History'), false);
     $response->assertSee(__('Profile'), false);
     $response->assertSee(config('app.name'), false);
+    $response->assertSee('/logo.png', false);
     $response->assertDontSee('viewBox="0 0 316 316"', false);
     $response->assertSee('data-flux-navbar', false);
 });
@@ -67,4 +68,13 @@ test('profile shell keeps home and history available without a hamburger drawer'
         ->and($html)->toContain(__('Profile'))
         ->and($html)->toContain(route('home'))
         ->and($html)->toContain(route('dashboard'));
+});
+
+test('mobile bottom dock uses elevated paper surface tokens not ink-invert background', function () {
+    $user = User::factory()->create();
+
+    $html = $this->actingAs($user)->get(route('home'))->getContent();
+
+    expect($html)->toContain('bg-paper-elevated dark:bg-paper-dark-elevated border border-ink/10 dark:border-ink-invert/10')
+        ->and($html)->not->toContain('bg-white dark:bg-ink-invert rounded-full');
 });

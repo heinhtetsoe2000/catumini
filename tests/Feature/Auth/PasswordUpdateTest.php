@@ -2,39 +2,30 @@
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Livewire;
 
 test('password can be updated', function () {
     $user = User::factory()->create();
 
-    $response = $this
-        ->actingAs($user)
-        ->from('/profile')
-        ->put('/password', [
-            'current_password' => 'password',
-            'password' => 'new-password',
-            'password_confirmation' => 'new-password',
-        ]);
+    Livewire::actingAs($user)
+        ->test('pages::user.profile')
+        ->set('password', 'password')
+        ->set('new_password', 'New-Password1!')
+        ->set('new_password_confirmation', 'New-Password1!')
+        ->call('updatePassword')
+        ->assertHasNoErrors();
 
-    $response
-        ->assertSessionHasNoErrors()
-        ->assertRedirect('/profile');
-
-    $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+    expect(Hash::check('New-Password1!', $user->refresh()->password))->toBeTrue();
 });
 
 test('correct password must be provided to update password', function () {
     $user = User::factory()->create();
 
-    $response = $this
-        ->actingAs($user)
-        ->from('/profile')
-        ->put('/password', [
-            'current_password' => 'wrong-password',
-            'password' => 'new-password',
-            'password_confirmation' => 'new-password',
-        ]);
-
-    $response
-        ->assertSessionHasErrorsIn('updatePassword', 'current_password')
-        ->assertRedirect('/profile');
+    Livewire::actingAs($user)
+        ->test('pages::user.profile')
+        ->set('password', 'wrong-password')
+        ->set('new_password', 'New-Password1!')
+        ->set('new_password_confirmation', 'New-Password1!')
+        ->call('updatePassword')
+        ->assertHasErrors(['password']);
 });

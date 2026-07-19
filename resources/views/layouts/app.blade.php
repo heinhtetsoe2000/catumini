@@ -7,6 +7,8 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+        <link rel="icon" href="/logo.png" type="image/png">
+
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=source-sans-3:400,500,600|source-serif-4:600,700&display=swap" rel="stylesheet" />
 
@@ -18,7 +20,7 @@
         @include('layouts.navigation')
 
         @isset($header)
-            <header class="border-b border-ink/10 bg-paper-elevated dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
+            <header>
                 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
@@ -30,6 +32,10 @@
         </main>
 
         @include('layouts.bottom-navigation')
+
+        <flux:toast.group position="top center">
+            <flux:toast />
+        </flux:toast.group>
 
         @livewireScripts
         @fluxScripts

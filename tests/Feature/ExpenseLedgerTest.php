@@ -71,7 +71,7 @@ test('history view groups by spend date and handles empty month', function () {
     $empty->assertSuccessful();
     $empty->assertSee(__('History'));
     $empty->assertSee('0 Ks');
-    $empty->assertSee('Avg: 0 Ks');
+    $empty->assertSee('No expenses this month');
 
     Expense::factory()->create([
         'user_id' => $user->id,
@@ -112,6 +112,27 @@ test('history labels today and yesterday spend groups', function () {
     $response->assertSee('Yesterday');
     $response->assertDontSee(now()->format('D M d'));
     $response->assertDontSee(now()->subDay()->format('D M d'));
+});
+
+test('history lists spend groups ordered by spent_on descending', function () {
+    $user = User::factory()->create();
+
+    Expense::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 1000,
+        'spent_on' => now()->toDateString(),
+    ]);
+
+    Expense::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 2000,
+        'spent_on' => now()->subDay()->toDateString(),
+    ]);
+
+    $response = $this->actingAs($user)->get(route('dashboard'));
+
+    $response->assertSuccessful();
+    $response->assertSeeInOrder(['Today', 'Yesterday']);
 });
 
 test('empty home day shows zero spend summary', function () {
