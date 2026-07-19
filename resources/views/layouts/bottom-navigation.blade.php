@@ -3,18 +3,21 @@
         <flux:navbar.item
             :href="route('home')"
             icon="home"
+            wire:navigate
             :current="request()->routeIs('home')"
             aria-label="{{ __('Home') }}"
         />
         <flux:navbar.item
             :href="route('dashboard')"
             icon="calendar-days"
+            wire:navigate
             :current="request()->routeIs('dashboard')"
             aria-label="{{ __('History') }}"
         />
         <flux:navbar.item
             :href="route('profile')"
             icon="user"
+            wire:navigate
             :current="request()->routeIs('profile')"
             aria-label="{{ __('Profile') }}"
         />

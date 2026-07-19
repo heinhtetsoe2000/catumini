@@ -135,7 +135,7 @@ new class extends Component
         @endif
     </flux:callout>
 
-    <div class="mx-auto m-4 w-xs sm:w-96 max-w-7xl bg-white dark:bg-ink-invert rounded-xl border border-ink/10 dark:border-ink-invert/10">
+    <div class="mx-auto m-4 w-xs sm:w-96 max-w-7xl bg-paper-elevated dark:bg-paper-dark-elevated rounded-xl border border-ink/10 dark:border-ink-invert/10">
         @forelse ($expenses as $index => $expense)
             <livewire:expense.edit wire:key="expense-{{ $expense->id }}" :expense="$expense" />
 
