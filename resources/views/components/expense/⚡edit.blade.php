@@ -60,7 +60,7 @@ new class extends Component
 ?>
 
 <div>
-    <div class="my-2 flex flex-wrap items-center justify-between gap-2 overflow-hidden rounded-lg border border-ink/10 bg-paper-elevated p-4 dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
+    <div class="flex flex-wrap items-center justify-between gap-2 overflow-hidden px-4 py-2">
         <div class="flex min-w-0 flex-col">
             <span class="text-sm font-bold text-ink dark:text-ink-invert">{{ $name }}</span>
             @if ($description)
@@ -93,15 +93,17 @@ new class extends Component
                     <flux:error>{{ $message }}</flux:error>
                 @enderror
 
-                <flux:input name="amount" type="number" wire:model="amount" placeholder="Amount (Ks)" min="0" step="1" required />
-                @error('amount')
-                    <flux:error>{{ $message }}</flux:error>
-                @enderror
+                <div class="flex items-center justify-between gap-2">
+                    <flux:input name="amount" type="number" wire:model="amount" placeholder="Amount (Ks)" min="0" step="1" required />
+                    @error('amount')
+                        <flux:error>{{ $message }}</flux:error>
+                    @enderror
 
-                <flux:input name="spent_on" type="date" wire:model="spent_on" required />
-                @error('spent_on')
-                    <flux:error>{{ $message }}</flux:error>
-                @enderror
+                    <flux:input name="spent_on" type="date" wire:model="spent_on" required />
+                    @error('spent_on')
+                        <flux:error>{{ $message }}</flux:error>
+                    @enderror
+                </div>
 
                 <flux:textarea name="description" wire:model="description" placeholder="Description">{{ $this->description }}</flux:textarea>
                 @error('description')

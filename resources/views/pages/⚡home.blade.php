@@ -4,6 +4,7 @@ use Livewire\Component;
 use App\Models\Expense;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 new class extends Component
 {
@@ -11,7 +12,7 @@ new class extends Component
 
     public int $amount;
 
-    public Carbon $spent_on;
+    public string $spent_on = '';
 
     public string $description = '';
 
@@ -25,7 +26,7 @@ new class extends Component
 
     public function mount()
     {
-        $this->spent_on = now();
+        $this->spent_on = now()->toDateString();
         $this->calculateTotal();
         $this->calculateAverage();
         $this->calculateDifference();
@@ -34,18 +35,18 @@ new class extends Component
 
     public function previousDay()
     {
-        $this->spent_on = $this->spent_on->subDay();
+        $this->spent_on = Carbon::parse($this->spent_on)->subDay()->toDateString();
         $this->calculateTotal();
         $this->calculateDifference();
-        $this->expenses = Expense::ofDay($this->spent_on)->currentUser()->orderBy('created_at', 'desc')->get();
+        $this->expenses = Expense::ofDay(Carbon::parse($this->spent_on))->currentUser()->orderBy('created_at', 'desc')->get();
     }
 
     public function nextDay()
     {
-        $this->spent_on = $this->spent_on->addDay();
+        $this->spent_on = Carbon::parse($this->spent_on)->addDay()->toDateString();
         $this->calculateTotal();
         $this->calculateDifference();
-        $this->expenses = Expense::ofDay($this->spent_on)->currentUser()->orderBy('created_at', 'desc')->get();
+        $this->expenses = Expense::ofDay(Carbon::parse($this->spent_on))->currentUser()->orderBy('created_at', 'desc')->get();
     }
 
     public function save()
@@ -61,7 +62,7 @@ new class extends Component
 
         $this->modal('add-expense')->close();
         $this->reset('name', 'amount', 'spent_on', 'description');
-        $this->spent_on = now();
+        $this->spent_on = now()->toDateString();
         $this->calculateTotal();
         $this->calculateAverage();
         $this->calculateDifference();
@@ -70,7 +71,7 @@ new class extends Component
 
     private function calculateTotal(): void
     {
-        $this->total = Expense::ofDay($this->spent_on)->currentUser()->sum('amount');
+        $this->total = Expense::ofDay(Carbon::parse($this->spent_on))->currentUser()->sum('amount');
     }
 
     private function calculateAverage(): void
@@ -95,22 +96,25 @@ new class extends Component
 ?>
 
 <div>
-    <div class="flex items-center justify-between gap-4 p-4">
-        <div class="flex items-center gap-2">
-            <flux:heading size="lg" class="font-bold text-2xl dark:text-ink-invert">
-                {{ $spent_on->isToday() ? __('Today') : $spent_on->format('M d, Y') }}
-            </flux:heading>
-            <flux:button variant="ghost" wire:click="previousDay">
-                <flux:icon name="chevron-left" />
-            </flux:button>
-            <flux:button variant="ghost" wire:click="nextDay" :disabled="$spent_on->isToday()" class="{{ $spent_on->isToday() ? 'opacity-50 cursor-not-allowed' : '' }}">
-                <flux:icon name="chevron-right" />
-            </flux:button>
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <flux:heading size="lg" class="font-bold text-2xl dark:text-ink-invert">
+                    {{ Carbon::parse($spent_on)->isToday() ? __('Today') : Carbon::parse($spent_on)->format('M d, Y') }}
+                </flux:heading>
+                <flux:button variant="ghost" wire:click="previousDay">
+                    <flux:icon name="chevron-left" />
+                </flux:button>
+                <flux:button variant="ghost" wire:click="nextDay" :disabled="Carbon::parse($spent_on)->isToday()" class="{{ Carbon::parse($spent_on)->isToday() ? 'opacity-50 cursor-not-allowed' : '' }}">
+                    <flux:icon name="chevron-right" />
+                </flux:button>
+            </div>
+            <flux:modal.trigger name="add-expense">
+                <flux:button icon="plus" class="rounded-full" />
+            </flux:modal.trigger>
         </div>
-        <flux:modal.trigger name="add-expense">
-            <flux:button icon="plus" class="rounded-full" />
-        </flux:modal.trigger>
     </div>
+
     <flux:card class="mx-auto m-4 w-xs sm:w-96 max-w-7xl px-4 sm:px-6 lg:px-8">
         <h1 class="text-center text-4xl font-bold">
             {{ number_format($total) }} Ks
@@ -130,6 +134,18 @@ new class extends Component
             </flux:callout.text>
         @endif
     </flux:callout>
+
+    <div class="mx-auto m-4 w-xs sm:w-96 max-w-7xl bg-white dark:bg-ink-invert rounded-xl border border-ink/10 dark:border-ink-invert/10">
+        @forelse ($expenses as $index => $expense)
+            <livewire:expense.edit wire:key="expense-{{ $expense->id }}" :expense="$expense" />
+
+            @if ($index !== count($expenses) - 1)
+                <flux:separator />
+            @endif
+        @empty
+            <flux:text class="my-4 text-center text-ink-muted">No expenses this month</flux:text>
+        @endforelse
+    </div>
 
     <flux:modal name="add-expense" class="md:w-96">
         <div class="space-y-6">
@@ -164,7 +180,7 @@ new class extends Component
                     <flux:modal.close>
                         <flux:button variant="ghost">Cancel</flux:button>
                     </flux:modal.close>
-                    <flux:button class="w-full" variant="primary" type="submit">Add Expense</flux:button>
+                    <flux:button class="w-full" variant="primary" color="blue" type="submit">Add Expense</flux:button>
                 </div>
             </form>
         </div>

@@ -1,26 +1,34 @@
 <x-app-layout>
     <x-slot name="header">
-        <flux:heading size="lg" class="text-ink dark:text-ink-invert">
-            {{ __('History') }}
-        </flux:heading>
+        <div class="flex items-center justify-between gap-4">
+            <flux:heading size="lg" class="font-bold text-2xl dark:text-ink-invert">
+                {{ __('History') }}
+            </flux:heading>
+
+            <flux:modal.trigger name="add-expense">
+                <flux:button icon="plus" class="rounded-full" />
+            </flux:modal.trigger>
+        </div>
     </x-slot>
 
     <div>
-        <div class="overflow-hidden border-b border-ink/10 bg-paper-elevated sm:rounded-lg dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
-            <div class="p-6 text-ink dark:text-ink-invert">
-                <p class="text-center text-sm text-ink-muted">
-                    {{ now()->format('M Y') }}
-                </p>
-                <h1 class="flex items-center justify-center text-center text-3xl font-bold">
-                    {{ number_format($total) }} Ks
-                </h1>
-                <p class="text-center text-sm text-accent">
-                    Avg: {{ number_format($average) }} Ks
-                </p>
-            </div>
-        </div>
+        <flux:card class="mx-auto m-4 w-xs sm:w-96 max-w-7xl px-4 sm:px-6 lg:px-8">
+            <flux:text class="text-center text-sm text-ink-muted">
+                {{ now()->format('M Y') }}
+            </flux:text>
 
-        <div class="mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h1 class="text-center text-4xl font-bold">
+                {{ number_format($total) }} Ks
+            </h1>
+
+            <div class="flex items-center justify-center gap-1">
+                <flux:icon.percent-badge variant="micro" class="text-blue-600 dark:text-blue-500" />
+
+                <span class="text-sm text-blue-600 dark:text-blue-500">{{ number_format($average) }} Ks</span>
+            </div>
+        </flux:card>
+
+        <div class="mx-auto mt-4 w-xs sm:w-96 max-w-7xl">
             @forelse ($expenses as $date => $amount)
                 <x-expense-record :name="$date" :amount="$amount" />
             @empty

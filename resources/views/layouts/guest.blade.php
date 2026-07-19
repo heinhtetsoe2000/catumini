@@ -19,9 +19,9 @@
                 <x-application-wordmark :href="url('/')" class="text-3xl" />
             </div>
 
-            <div class="mt-8 w-full overflow-hidden border border-ink/10 bg-paper-elevated px-6 py-5 sm:max-w-md sm:rounded-lg dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
+            <flux:card class="mx-auto m-4 w-xs sm:w-96 max-w-7xl px-4 sm:px-6 lg:px-8">
                 {{ $slot }}
-            </div>
+            </flux:card>
         </div>
 
         @fluxScripts

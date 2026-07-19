@@ -1,4 +1,4 @@
-<div class="flex sm:hidden fixed bottom-[50px] left-0 right-0 mx-auto m-4 px-4 bg-white dark:bg-ink-invert rounded-full w-fit items-center justify-center">
+<div class="flex sm:hidden fixed bottom-[50px] left-0 right-0 mx-auto m-4 px-4 bg-paper-elevated dark:bg-paper-dark-elevated border border-ink/10 dark:border-ink-invert/10 rounded-full w-fit items-center justify-center">
     <flux:navbar class="flex justify-center">
         <flux:navbar.item
             :href="route('home')"
