@@ -154,27 +154,15 @@ new class extends Component
             <form wire:submit="save" class="space-y-4">
                 @csrf
 
-                <flux:input name="name" wire:model="name" placeholder="Expense name" required />
-                @error('name')
-                    <flux:error>{{ $message }}</flux:error>
-                @enderror
+                <flux:input name="name" wire:model="name" placeholder="Name" required />
 
                 <div class="flex items-center justify-between gap-2">
                     <flux:input name="amount" type="number" wire:model="amount" placeholder="Amount (Ks)" min="0" required />
-                    @error('amount')
-                        <flux:error>{{ $message }}</flux:error>
-                    @enderror
 
                     <flux:input name="spent_on" type="date" wire:model="spent_on" required />
-                    @error('spent_on')
-                        <flux:error>{{ $message }}</flux:error>
-                    @enderror
                 </div>
 
                 <flux:textarea name="description" wire:model="description" placeholder="Description">{{ $this->description }}</flux:textarea>
-                @error('description')
-                    <flux:error>{{ $message }}</flux:error>
-                @enderror
 
                 <div class="flex justify-between gap-2">
                     <flux:modal.close>
