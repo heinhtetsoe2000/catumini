@@ -67,4 +67,5 @@ _Avoid_: Welcome page, marketing landing, treating `/` as Home/Today
 - Visual system decisions live in `docs/adr/0001-ledger-ink-visual-system.md`, not in this glossary.
 - UI component kit (Flux Free on Blade controllers) lives in `docs/adr/0002-flux-free-blade-ui-kit.md`, not in this glossary.
 - Mobile always-visible **Today** / **Monthly** top destinations (icons on small screens, text on desktop; no hamburger) live in `docs/adr/0003-mobile-top-primary-destinations.md`, not in this glossary.
+- **Expense** aggregate caching (Owner-scoped day/month rollups, not lists) lives in `docs/adr/0004-owner-scoped-expense-aggregate-cache.md`, not in this glossary.
 - “Public launch later” means a future multi-user phase (many ledger accounts, registration model TBD) — it does **not** change the current MVP: one **Owner**, **Closed registration**. Do not redefine **Owner** until that phase is designed.

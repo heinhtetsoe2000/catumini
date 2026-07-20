@@ -2,23 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Expense;
+use App\Services\ExpenseAggregateCache;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(): View
+    public function index(Request $request, ExpenseAggregateCache $expenseAggregateCache): View
     {
-        $expenses = Expense::query()
-            ->currentUser()
-            ->monthly()
-            ->orderBy('spent_on', 'desc')
-            ->get()
-            ->groupBy(fn (Expense $expense): string => $expense->spent_on->format('D M d'))
-            ->map(fn ($group) => $group->sum('amount'));
+        $dayTotals = $expenseAggregateCache->monthDayTotals(
+            (int) $request->user()->id,
+            now()
+        );
 
-        $total = $expenses->sum();
-        $average = $expenses->count() > 0 ? (int) round($total / $expenses->count()) : 0;
+        /** @var Collection<string, int> $expenses */
+        $expenses = collect($dayTotals)
+            ->sortKeysDesc()
+            ->mapWithKeys(fn (int $amount, string $spentOn): array => [
+                Carbon::parse($spentOn)->format('D M d') => $amount,
+            ]);
+
+        $total = (int) $expenses->sum();
+        $average = $expenses->count() > 0 ? (int) round($expenses->avg()) : 0;
 
         return view('dashboard', compact('expenses', 'total', 'average'));
     }
