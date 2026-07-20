@@ -2,9 +2,9 @@
 
 use Livewire\Component;
 use App\Models\Expense;
+use App\Services\ExpenseAggregateCache;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 new class extends Component
 {
@@ -71,17 +71,18 @@ new class extends Component
 
     private function calculateTotal(): void
     {
-        $this->total = Expense::ofDay(Carbon::parse($this->spent_on))->currentUser()->sum('amount');
+        $this->total = $this->aggregateCache()->dayTotal(
+            (int) auth()->id(),
+            Carbon::parse($this->spent_on)
+        );
     }
 
     private function calculateAverage(): void
     {
-        $dailyTotals = Expense::query()
-            ->monthly()
-            ->currentUser()
-            ->get()
-            ->groupBy(fn (Expense $expense): string => $expense->spent_on->format('D M d'))
-            ->map(fn ($group) => $group->sum('amount'));
+        $dailyTotals = collect($this->aggregateCache()->monthDayTotals(
+            (int) auth()->id(),
+            now()
+        ));
 
         $this->average = $dailyTotals->isEmpty()
             ? 0
@@ -91,6 +92,11 @@ new class extends Component
     private function calculateDifference(): void
     {
         $this->difference = $this->total - $this->average;
+    }
+
+    private function aggregateCache(): ExpenseAggregateCache
+    {
+        return app(ExpenseAggregateCache::class);
     }
 };
 ?>

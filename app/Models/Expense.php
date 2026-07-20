@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Observers\ExpenseObserver;
 use Carbon\Carbon;
 use Database\Factories\ExpenseFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 
+#[ObservedBy([ExpenseObserver::class])]
 class Expense extends Model
 {
     /** @use HasFactory<ExpenseFactory> */
