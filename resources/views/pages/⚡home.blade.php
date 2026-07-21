@@ -127,8 +127,8 @@ new class extends Component
         </h1>
     </flux:card>
 
-    <flux:callout icon="information-circle" class="w-xs sm:w-96 mx-auto max-w-7xl">
-        <flux:callout.heading>{{ __('Summary') }}</flux:callout.heading>
+    <flux:callout icon="sparkles" color="purple" class="w-xs sm:w-96 mx-auto max-w-7xl">
+        <flux:callout.heading>{{ __('AI Summary') }}</flux:callout.heading>
 
         @if ($total === 0)
             <flux:callout.text>

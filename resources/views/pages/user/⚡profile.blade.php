@@ -92,31 +92,29 @@ new class extends Component
 ?>
 
 <div>
-    <x-slot name="header">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between gap-4">
             <flux:heading size="lg" class="font-bold text-2xl dark:text-ink-invert">
                 {{ __('Profile') }}
             </flux:heading>
 
-            <flux:modal.trigger name="edit-profile">
-                <flux:button icon="pencil" />
-            </flux:modal.trigger>
+            <flux:button type="button" icon="arrow-right-start-on-rectangle" wire:click="logout" />
         </div>
-    </x-slot>
+    </div>
 
     <div>
         <flux:card class="mx-auto m-4 w-xs sm:w-96 max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-left gap-4">
-                <flux:avatar src="https://unavatar.io/x/calebporzio" />
+                <flux:avatar name="{{ $user->name }}" size="xl" color="auto" />
                 <div>
                     <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">{{ $user->name }}</flux:heading>
                     <flux:text class="text-sm text-ink-muted">{{ $user->email }}</flux:text>
                 </div>
             </div>
-            <flux:text class="mt-1 text-sm text-ink-muted">
+            <flux:text class="mt-2  mb-4 text-sm text-ink-muted">
                 {{ __('Joined') }} {{ $user->created_at->format('M d, Y') }}
             </flux:text>
-            <div class="flex justify-between gap-2 mt-4">
+            <div class="flex justify-between gap-2">
                 <flux:modal.trigger name="edit-profile">
                     <flux:button variant="filled" icon="pencil" class="w-full">Edit Profile</flux:button>
                 </flux:modal.trigger>
@@ -143,9 +141,9 @@ new class extends Component
 
         <flux:card class="mx-auto m-4 w-xs sm:w-96 max-w-7xl px-4 sm:px-6 lg:px-8">
             <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">
-                {{  __('Update Password') }}
+                {{  __('Password') }}
             </flux:heading>
-            <flux:subheading class="my-2">
+            <flux:subheading class="mt-2 mb-4">
                 {{ __('Ensure your account is using a long, random password to stay secure.') }}
             </flux:subheading>
 
@@ -156,27 +154,14 @@ new class extends Component
 
         <flux:card class="mx-auto m-4 w-xs sm:w-96 max-w-7xl px-4 sm:px-6 lg:px-8">
             <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">
-                {{ __('Log Out') }}
+                {{  __('Danger Zone') }}
             </flux:heading>
-            <flux:subheading class="my-2">
-                {{ __('Sign out of your account on this device.') }}
-            </flux:subheading>
-
-            <flux:button type="button" variant="filled" wire:click="logout">
-                {{ __('Log Out') }}
-            </flux:button>
-        </flux:card>
-
-        <flux:card class="mx-auto m-4 w-xs sm:w-96 max-w-7xl px-4 sm:px-6 lg:px-8">
-            <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">
-                {{  __('Delete Account') }}
-            </flux:heading>
-            <flux:subheading class="my-2">
+            <flux:subheading class="mt-2 mb-4">
                 {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
             </flux:subheading>
 
             <flux:modal.trigger name="delete-account">
-                <flux:button variant="danger">{{ __('Delete Account') }}</flux:button>
+                <flux:button variant="danger" icon="trash">{{ __('Delete Account') }}</flux:button>
             </flux:modal.trigger>
         </flux:card>
 

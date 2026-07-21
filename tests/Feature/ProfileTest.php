@@ -77,12 +77,11 @@ test('unverified user sees email verification callout on profile', function () {
         ->assertSee(__('Verify Email'));
 });
 
-test('profile page shows log out control with wire click', function () {
+test('profile page shows logout control with wire click', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
         ->test('pages::user.profile')
-        ->assertSee(__('Log Out'))
         ->assertSeeHtml('wire:click="logout"');
 });
 
