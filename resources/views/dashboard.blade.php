@@ -1,14 +1,6 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between gap-4">
-            <flux:heading size="lg" class="font-bold text-2xl dark:text-ink-invert">
-                {{ __('History') }}
-            </flux:heading>
-        </div>
-    </x-slot>
-
     <div>
-        <flux:card class="mx-auto m-4 w-xs sm:w-96 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <flux:text class="text-center text-sm text-ink-muted">
                 {{ now()->format('M Y') }}
             </flux:text>
@@ -24,7 +16,7 @@
             </div>
         </flux:card>
 
-        <div class="mx-auto mt-4 w-xs sm:w-96 max-w-7xl">
+        <div class="mx-auto mt-4 w-90 md:w-auto max-w-7xl">
             @forelse ($expenses as $date => $amount)
                 <x-expense-record :name="$date" :amount="$amount" />
             @empty
