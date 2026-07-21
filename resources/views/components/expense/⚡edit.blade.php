@@ -62,13 +62,13 @@ new class extends Component
 <div>
     <div class="flex flex-wrap items-center justify-between gap-2 overflow-hidden px-4 py-2">
         <div class="flex min-w-0 flex-col">
-            <span class="text-sm font-bold text-ink dark:text-ink-invert">{{ $name }}</span>
+            <flux:text class="text-sm font-bold truncate max-w-[10rem] sm:max-w-[13rem] text-ink dark:text-ink-invert">{{ $name }}</flux:text>
             @if ($description)
-                <span class="text-sm text-ink-muted dark:text-ink-soft">{{ $description }}</span>
+                <flux:text class="text-sm truncate max-w-[10rem] sm:max-w-[13rem] text-ink-muted dark:text-ink-soft">{{ $description }}</flux:text>
             @endif
         </div>
         <div class="flex items-center gap-3">
-            <span class="text-sm font-bold text-accent">{{ number_format($amount) }} Ks</span>
+            <flux:text class="text-sm font-bold text-accent">{{ number_format($amount) }} Ks</flux:text>
 
             <flux:dropdown>
                 <flux:button icon="ellipsis-horizontal" variant="ghost" />
