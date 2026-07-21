@@ -60,28 +60,18 @@ new class extends Component
 ?>
 
 <div>
-    <div class="flex flex-wrap items-center justify-between gap-2 overflow-hidden px-4 py-2">
-        <div class="flex min-w-0 flex-col">
-            <flux:text class="text-sm font-bold truncate max-w-[10rem] sm:max-w-[13rem] text-ink dark:text-ink-invert">{{ $name }}</flux:text>
+    <button wire:click="openEditModal" class="w-full flex items-center justify-between gap-2 p-4 data-loading:opacity-50 [&[data-loading]_.icon]:animate-spin">
+        <flux:icon.loading class="icon mx-auto not-in-data-loading:hidden" />
+        <div class="in-data-loading:hidden">
+            <flux:text class="text-left text-lg font-bold truncate max-w-[10rem] sm:max-w-[13rem] text-ink dark:text-ink-invert">{{ $name }}</flux:text>
             @if ($description)
-                <flux:text class="text-sm truncate max-w-[10rem] sm:max-w-[13rem] text-ink-muted dark:text-ink-soft">{{ $description }}</flux:text>
+                <flux:text class="text-left text-sm truncate max-w-[10rem] sm:max-w-[13rem] text-ink-muted dark:text-ink-soft">{{ $description }}</flux:text>
             @endif
         </div>
-        <div class="flex items-center gap-3">
-            <flux:text class="text-sm font-bold text-accent">{{ number_format($amount) }} Ks</flux:text>
+        <flux:text class="text-left text-lg font-bold text-ink in-data-loading:hidden">{{ number_format($amount) }} Ks</flux:text>
+    </button>
 
-            <flux:dropdown>
-                <flux:button icon="ellipsis-horizontal" variant="ghost" />
-
-                <flux:menu>
-                    <flux:menu.item icon="pencil" wire:click="openEditModal">Edit</flux:menu.item>
-                    <flux:menu.item variant="danger" icon="trash" wire:click="openDeleteModal">Delete</flux:menu.item>
-                </flux:menu>
-            </flux:dropdown>
-        </div>
-    </div>
-
-    <flux:modal name="edit-expense-{{ $expense->id }}" class="md:w-96">
+    <flux:modal name="edit-expense-{{ $expense->id }}" class="w-90 md:w-auto">
         <div class="space-y-6">
             <flux:heading size="lg">Edit Expense</flux:heading>
 
@@ -89,38 +79,25 @@ new class extends Component
                 @csrf
 
                 <flux:input name="name" wire:model="name" placeholder="Expense name" required />
-                @error('name')
-                    <flux:error>{{ $message }}</flux:error>
-                @enderror
 
                 <div class="flex items-center justify-between gap-2">
                     <flux:input name="amount" type="number" wire:model="amount" placeholder="Amount (Ks)" min="0" step="1" required />
-                    @error('amount')
-                        <flux:error>{{ $message }}</flux:error>
-                    @enderror
-
                     <flux:input name="spent_on" type="date" wire:model="spent_on" required />
-                    @error('spent_on')
-                        <flux:error>{{ $message }}</flux:error>
-                    @enderror
                 </div>
 
                 <flux:textarea name="description" wire:model="description" placeholder="Description">{{ $this->description }}</flux:textarea>
-                @error('description')
-                    <flux:error>{{ $message }}</flux:error>
-                @enderror
 
                 <div class="flex justify-between gap-2">
                     <flux:modal.close>
                         <flux:button variant="ghost">Cancel</flux:button>
                     </flux:modal.close>
-                    <flux:button class="w-full" variant="primary" type="submit">Update</flux:button>
+                    <flux:button class="w-full" variant="primary" color="blue" type="submit">Update</flux:button>
                 </div>
             </form>
         </div>
     </flux:modal>
 
-    <flux:modal name="delete-expense-{{ $expense->id }}" class="md:w-96">
+    <flux:modal name="delete-expense-{{ $expense->id }}" class="w-90 md:w-auto">
         <div class="space-y-6">
             <flux:heading size="lg">Delete "{{ $name }}"</flux:heading>
 

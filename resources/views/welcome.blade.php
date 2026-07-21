@@ -16,6 +16,7 @@
     <body class="font-sans antialiased text-ink dark:text-ink-invert">
         <main class="flex min-h-screen flex-col items-center justify-center bg-paper px-6 dark:bg-paper-dark">
             <div class="w-full max-w-sm text-center">
+                <img src="{{ asset('logo.png') }}" alt="Logo" class="w-16 h-16 mx-auto mb-4 rounded-xl">
                 <h1 class="gate-enter">
                     <x-application-wordmark class="text-4xl sm:text-5xl" />
                 </h1>

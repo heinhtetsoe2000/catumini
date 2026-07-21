@@ -142,7 +142,8 @@ test('empty home day shows zero spend summary', function () {
         ->test('pages::home')
         ->assertSet('total', 0)
         ->assertSet('average', 0)
-        ->assertSeeHtml("You haven't spent any.");
+        ->assertSet('showAISummary', false)
+        ->assertSee('0 Ks');
 });
 
 test('user can navigate to the previous day and see that days total', function () {
@@ -166,7 +167,7 @@ test('user can navigate to the previous day and see that days total', function (
         ->assertSee(__('Today'))
         ->call('previousDay')
         ->assertSet('total', 9000)
-        ->assertSee(now()->subDay()->format('M d, Y'))
+        ->assertSee(now()->subDay()->format('M d'))
         ->assertSee('9,000 Ks');
 });
 
@@ -220,8 +221,61 @@ test('home summary compares spend to the monthly daily average', function () {
 
     Livewire::actingAs($user)
         ->test('pages::home')
+        ->assertSet('showAISummary', true)
         ->assertSee('You have spent 2,000 Ks more than the average.');
 });
+
+test('AI summary is hidden when day spend equals the monthly average', function () {
+    $user = User::factory()->create();
+
+    Expense::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 3000,
+        'spent_on' => now()->subDay()->toDateString(),
+    ]);
+
+    Expense::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 3000,
+        'spent_on' => now()->toDateString(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test('pages::home')
+        ->assertSet('total', 3000)
+        ->assertSet('difference', 0)
+        ->assertSet('showAISummary', false);
+});
+
+test('deleting an expense refreshes home totals and AI summary', function () {
+    $user = User::factory()->create();
+
+    Expense::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 1000,
+        'spent_on' => now()->subDay()->toDateString(),
+    ]);
+
+    $expense = Expense::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 5000,
+        'spent_on' => now()->toDateString(),
+    ]);
+
+    $home = Livewire::actingAs($user)
+        ->test('pages::home')
+        ->assertSet('total', 5000)
+        ->assertSet('showAISummary', true);
+
+    Livewire::actingAs($user)
+        ->test('expense.edit', ['expense' => $expense])
+        ->call('delete');
+
+    $home->call('handleDeleted')
+        ->assertSet('total', 0)
+        ->assertSet('showAISummary', false);
+});
+
 test('owner can update their expense', function () {
     $user = User::factory()->create();
     $expense = Expense::factory()->create([

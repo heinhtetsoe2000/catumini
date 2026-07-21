@@ -5,6 +5,7 @@ use App\Models\Expense;
 use App\Services\ExpenseAggregateCache;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use Livewire\Attributes\Transition;
 
 new class extends Component
 {
@@ -22,6 +23,8 @@ new class extends Component
 
     public int $difference = 0;
 
+    public bool $showAISummary = false;
+
     public Collection $expenses;
 
     public function mount()
@@ -30,22 +33,32 @@ new class extends Component
         $this->calculateTotal();
         $this->calculateAverage();
         $this->calculateDifference();
+        $this->showAISummary();
         $this->expenses = Expense::today()->currentUser()->orderBy('created_at', 'desc')->get();
     }
 
+    public function showAISummary(): void
+    {
+        $this->showAISummary = $this->total != 0 && $this->difference != 0;
+    }
+
+    #[Transition(type: 'backward')]
     public function previousDay()
     {
         $this->spent_on = Carbon::parse($this->spent_on)->subDay()->toDateString();
         $this->calculateTotal();
         $this->calculateDifference();
+        $this->showAISummary();
         $this->expenses = Expense::ofDay(Carbon::parse($this->spent_on))->currentUser()->orderBy('created_at', 'desc')->get();
     }
 
+    #[Transition(type: 'forward')]
     public function nextDay()
     {
         $this->spent_on = Carbon::parse($this->spent_on)->addDay()->toDateString();
         $this->calculateTotal();
         $this->calculateDifference();
+        $this->showAISummary();
         $this->expenses = Expense::ofDay(Carbon::parse($this->spent_on))->currentUser()->orderBy('created_at', 'desc')->get();
     }
 
@@ -66,7 +79,16 @@ new class extends Component
         $this->calculateTotal();
         $this->calculateAverage();
         $this->calculateDifference();
+        $this->showAISummary();
         $this->expenses = Expense::today()->currentUser()->orderBy('created_at', 'desc')->get();
+    }
+
+    public function handleDeleted(): void
+    {
+        $this->calculateTotal();
+        $this->calculateAverage();
+        $this->calculateDifference();
+        $this->showAISummary();
     }
 
     private function calculateTotal(): void
@@ -102,48 +124,44 @@ new class extends Component
 ?>
 
 <div>
-    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between gap-4">
-            <div class="flex items-center gap-2">
-                <flux:heading size="lg" class="font-bold text-2xl dark:text-ink-invert">
-                    {{ Carbon::parse($spent_on)->isToday() ? __('Today') : Carbon::parse($spent_on)->format('M d, Y') }}
-                </flux:heading>
-                <flux:button variant="ghost" wire:click="previousDay">
-                    <flux:icon name="chevron-left" />
-                </flux:button>
-                <flux:button variant="ghost" wire:click="nextDay" :disabled="Carbon::parse($spent_on)->isToday()" class="{{ Carbon::parse($spent_on)->isToday() ? 'opacity-50 cursor-not-allowed' : '' }}">
-                    <flux:icon name="chevron-right" />
-                </flux:button>
-            </div>
-            <flux:modal.trigger name="add-expense">
-                <flux:button icon="plus" class="rounded-full" />
-            </flux:modal.trigger>
-        </div>
-    </div>
+            <flux:button variant="ghost" wire:click="previousDay">
+                <flux:icon name="chevron-left" />
+            </flux:button>
 
-    <flux:card class="mx-auto m-4 w-xs sm:w-96 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h1 class="text-center text-4xl font-bold">
-            {{ number_format($total) }} Ks
-        </h1>
+            <div>
+                <flux:text class="text-center font-bold text-ink-muted" wire:transition>
+                    {{ Carbon::parse($spent_on)->isToday() ? __('Today') : Carbon::parse($spent_on)->format('M d') }}
+                </flux:text>
+                <h1 class="text-center text-4xl font-bold" wire:transition>
+                    {{ number_format($total) }} Ks
+                </h1>
+            </div>
+
+            <flux:button variant="ghost" wire:click="nextDay" :disabled="Carbon::parse($spent_on)->isToday()" class="{{ Carbon::parse($spent_on)->isToday() ? 'opacity-50 cursor-not-allowed' : '' }}">
+                <flux:icon name="chevron-right" />
+            </flux:button>
+        </div>
+
+        <flux:separator class="my-4" />
+
+        <flux:modal.trigger name="add-expense">
+            <flux:button icon="plus" class="w-full" variant="primary" color="blue">Add Expense</flux:button>
+        </flux:modal.trigger>
     </flux:card>
 
-    <flux:callout icon="sparkles" color="purple" class="w-xs sm:w-96 mx-auto max-w-7xl">
+    <flux:callout wire:show="showAISummary" icon="sparkles" color="purple" class="w-90 md:w-auto mx-auto max-w-7xl" x-transition.duration.500ms>
         <flux:callout.heading>{{ __('AI Summary') }}</flux:callout.heading>
 
-        @if ($total === 0)
-            <flux:callout.text>
-                You haven't spent any.
-            </flux:callout.text>
-        @else
-            <flux:callout.text>
-                You have spent {{ number_format(abs($difference)) }} Ks {{ $difference > 0 ? 'more' : 'less' }} than the average.
-            </flux:callout.text>
-        @endif
+        <flux:callout.text>
+            You have spent {{ number_format(abs($difference)) }} Ks {{ $difference > 0 ? 'more' : 'less' }} than the average.
+        </flux:callout.text>
     </flux:callout>
 
-    <div class="mx-auto m-4 w-xs sm:w-96 max-w-7xl bg-paper-elevated dark:bg-paper-dark-elevated rounded-xl border border-ink/10 dark:border-ink-invert/10">
+    <div class="mx-auto m-4 w-90 md:w-auto max-w-7xl bg-paper-elevated dark:bg-paper-dark-elevated rounded-xl border border-ink/10 dark:border-ink-invert/10" wire:transition>
         @forelse ($expenses as $index => $expense)
-            <livewire:expense.edit wire:key="expense-{{ $expense->id }}" :expense="$expense" />
+            <livewire:expense.edit wire:key="expense-{{ $expense->id }}" :expense="$expense" @deleted="handleDeleted" x-transition.duration.500ms />
 
             @if ($index !== count($expenses) - 1)
                 <flux:separator />
@@ -153,26 +171,27 @@ new class extends Component
         @endforelse
     </div>
 
-    <flux:modal name="add-expense" class="md:w-96">
+    <flux:modal name="add-expense" class="w-90 md:w-auto">
         <div class="space-y-6">
             <flux:heading size="lg">Add Expense</flux:heading>
 
             <form wire:submit="save" class="space-y-4">
                 @csrf
 
-                <flux:input name="name" wire:model="name" placeholder="Name" label="Name" required />
+                <flux:input name="name" wire:model="name" placeholder="Name" required />
 
-                <flux:input name="amount" type="number" wire:model="amount" placeholder="Amount (Ks)" label="Amount (Ks)" min="0" required />
+                <div class="flex items-center justify-between gap-2">
+                    <flux:input name="amount" type="number" wire:model="amount" placeholder="Amount (Ks)" min="0" step="1" required />
+                    <flux:input name="spent_on" type="date" wire:model="spent_on" required />
+                </div>
 
-                <flux:input name="spent_on" type="date" wire:model="spent_on" label="Spent On" required />
-
-                <flux:textarea name="description" wire:model="description" placeholder="Description" label="Description">{{ $this->description }}</flux:textarea>
+                <flux:textarea name="description" wire:model="description" placeholder="Description">{{ $this->description }}</flux:textarea>
 
                 <div class="flex justify-between gap-2">
                     <flux:modal.close>
                         <flux:button variant="ghost">Cancel</flux:button>
                     </flux:modal.close>
-                    <flux:button class="w-full" variant="primary" color="blue" type="submit">Add Expense</flux:button>
+                    <flux:button class="w-full" variant="primary" color="blue" type="submit">Add</flux:button>
                 </div>
             </form>
         </div>

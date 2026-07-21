@@ -1,8 +1,8 @@
-<nav class="border-b border-ink/10 bg-paper-elevated dark:border-ink-invert/10 dark:bg-paper-dark-elevated">
+<nav class="hidden sticky top-0 z-50 border-b border-ink/10 bg-paper-elevated dark:border-ink-invert/10 dark:bg-paper-dark-elevated md:block">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between gap-3">
             <div class="flex min-w-0 items-center gap-4 sm:gap-8">
-                <flux:brand :href="route('home')" logo="/logo.png" name="Wallet" />
+                <flux:brand :href="route('home')" logo="logo.png" name="Wallet" />
 
                 <flux:navbar class="hidden sm:flex">
                     <flux:navbar.item :href="route('home')" :current="request()->routeIs('home')">
