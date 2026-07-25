@@ -63,12 +63,12 @@ new class extends Component
     <button wire:click="openEditModal" class="w-full flex items-center justify-between gap-2 p-4 data-loading:opacity-50 [&[data-loading]_.icon]:animate-spin">
         <flux:icon.loading class="icon mx-auto not-in-data-loading:hidden" />
         <div class="in-data-loading:hidden">
-            <flux:text class="text-left text-lg font-bold truncate max-w-[10rem] sm:max-w-[13rem] text-ink dark:text-ink-invert">{{ $name }}</flux:text>
+            <flux:text class="text-left text-lg font-bold truncate max-w-[10rem] sm:max-w-[13rem] text-black dark:text-white">{{ $name }}</flux:text>
             @if ($description)
-                <flux:text class="text-left text-sm truncate max-w-[10rem] sm:max-w-[13rem] text-ink-muted dark:text-ink-soft">{{ $description }}</flux:text>
+                <flux:text class="text-left text-sm truncate max-w-[10rem] sm:max-w-[13rem] text-black dark:text-white">{{ $description }}</flux:text>
             @endif
         </div>
-        <flux:text class="text-left text-lg font-bold text-ink in-data-loading:hidden">{{ number_format($amount) }} Ks</flux:text>
+        <flux:text class="text-left text-lg font-bold text-black dark:text-white in-data-loading:hidden">{{ number_format($amount) }} Ks</flux:text>
     </button>
 
     <flux:modal name="edit-expense-{{ $expense->id }}" class="w-90 md:w-auto">
@@ -88,10 +88,8 @@ new class extends Component
                 <flux:textarea name="description" wire:model="description" placeholder="Description">{{ $this->description }}</flux:textarea>
 
                 <div class="flex justify-between gap-2">
-                    <flux:modal.close>
-                        <flux:button variant="ghost">Cancel</flux:button>
-                    </flux:modal.close>
-                    <flux:button class="w-full" variant="primary" color="blue" type="submit">Update</flux:button>
+                    <flux:button class="w-full" variant="danger" wire:click="openDeleteModal">Delete</flux:button>
+                    <flux:button class="w-full" variant="primary" color="zinc" type="submit">Update</flux:button>
                 </div>
             </form>
         </div>
