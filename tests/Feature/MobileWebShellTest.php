@@ -70,11 +70,11 @@ test('profile shell keeps home and history available without a hamburger drawer'
         ->and($html)->toContain(route('dashboard'));
 });
 
-test('mobile bottom dock uses elevated paper surface tokens not ink-invert background', function () {
+test('mobile bottom dock uses white/black surface with soft border not ink-invert background', function () {
     $user = User::factory()->create();
 
     $html = $this->actingAs($user)->get(route('home'))->getContent();
 
-    expect($html)->toContain('bg-paper-elevated dark:bg-paper-dark-elevated border border-ink/10 dark:border-ink-invert/10')
+    expect($html)->toContain('bg-white dark:bg-black border border-black/10 dark:border-white/10 rounded-full')
         ->and($html)->not->toContain('bg-white dark:bg-ink-invert rounded-full');
 });
