@@ -36,7 +36,7 @@
                 </a>
             @endif
 
-            <flux:button type="submit" variant="primary">
+            <flux:button type="submit" variant="primary" color="zinc">
                 {{ __('Log in') }}
             </flux:button>
         </div>

@@ -124,7 +124,7 @@ new class extends Component
 ?>
 
 <div>
-    <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between gap-4">
             <flux:button variant="ghost" wire:click="previousDay">
                 <flux:icon name="chevron-left" />
@@ -147,11 +147,11 @@ new class extends Component
         <flux:separator class="my-4" />
 
         <flux:modal.trigger name="add-expense">
-            <flux:button icon="plus" class="w-full" variant="primary" color="blue">Add Expense</flux:button>
+            <flux:button icon="plus" class="w-full" variant="primary" color="zinc">Add Expense</flux:button>
         </flux:modal.trigger>
     </flux:card>
 
-    <flux:callout wire:show="showAISummary" icon="sparkles" color="purple" class="w-90 md:w-auto mx-auto max-w-7xl" x-transition.duration.500ms>
+    <flux:callout wire:show="showAISummary" icon="sparkles" color="purple" class="w-90 md:w-auto mx-auto max-w-2xl" x-transition.duration.500ms>
         <flux:callout.heading>{{ __('AI Summary') }}</flux:callout.heading>
 
         <flux:callout.text>
@@ -159,7 +159,7 @@ new class extends Component
         </flux:callout.text>
     </flux:callout>
 
-    <div class="mx-auto m-4 w-90 md:w-auto max-w-7xl bg-paper-elevated dark:bg-paper-dark-elevated rounded-xl border border-ink/10 dark:border-ink-invert/10" wire:transition>
+    <div class="mx-auto m-4 w-90 md:w-auto max-w-2xl bg-white dark:bg-black rounded-xl border border-black/10 dark:border-white/10" wire:transition>
         @forelse ($expenses as $index => $expense)
             <livewire:expense.edit wire:key="expense-{{ $expense->id }}" :expense="$expense" @deleted="handleDeleted" x-transition.duration.500ms />
 
@@ -167,7 +167,7 @@ new class extends Component
                 <flux:separator />
             @endif
         @empty
-            <flux:text class="my-4 text-center text-ink-muted">No expenses this month</flux:text>
+            <flux:text class="my-4 text-center text-black dark:text-white">No expenses this month</flux:text>
         @endforelse
     </div>
 
@@ -191,7 +191,7 @@ new class extends Component
                     <flux:modal.close>
                         <flux:button variant="ghost">Cancel</flux:button>
                     </flux:modal.close>
-                    <flux:button class="w-full" variant="primary" color="blue" type="submit">Add</flux:button>
+                    <flux:button class="w-full" variant="primary" color="zinc" type="submit">Add</flux:button>
                 </div>
             </form>
         </div>

@@ -16,7 +16,7 @@
         @livewireStyles
         @fluxAppearance
     </head>
-    <body class="min-h-screen font-sans antialiased nativephp-safe-area bg-paper text-ink dark:bg-paper-dark dark:text-ink-invert">
+    <body class="min-h-screen font-sans antialiased nativephp-safe-area bg-white text-ink dark:bg-black dark:text-ink-invert">
         @include('layouts.navigation')
 
         @isset($header)

@@ -14,9 +14,9 @@
         @fluxAppearance
     </head>
     <body class="font-sans antialiased text-ink dark:text-ink-invert">
-        <main class="flex min-h-screen flex-col items-center justify-center bg-paper px-6 dark:bg-paper-dark">
+        <main class="flex min-h-screen flex-col items-center justify-center bg-white px-6 dark:bg-black">
             <div class="w-full max-w-sm text-center">
-                <img src="{{ asset('logo.png') }}" alt="Logo" class="w-16 h-16 mx-auto mb-4 rounded-xl">
+                <img src="{{ asset('logo-with-bg.png') }}" alt="Logo" class="w-16 h-16 mx-auto mb-4 rounded-xl">
                 <h1 class="gate-enter">
                     <x-application-wordmark class="text-4xl sm:text-5xl" />
                 </h1>
@@ -26,7 +26,7 @@
                 </p>
 
                 <div class="gate-enter-delay-2 mt-10 flex justify-center">
-                    <flux:button :href="route('login')" variant="primary" class="w-full sm:w-auto">
+                    <flux:button :href="route('login')" variant="primary" color="zinc" class="w-full sm:w-auto">
                         Login
                     </flux:button>
                 </div>
