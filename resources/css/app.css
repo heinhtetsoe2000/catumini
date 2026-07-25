@@ -22,20 +22,20 @@
     --color-ink-soft: #8b939e;
     --color-ink-invert: #e8eaed;
 
-    --color-accent: #0f766e;
-    --color-accent-content: #0f766e;
-    --color-accent-foreground: #ffffff;
-    --color-accent-hover: #0d9488;
+    --color-accent: #000;
+    --color-accent-content: #000;
+    --color-accent-foreground: #000;
+    --color-accent-hover: #000;
     --color-accent-muted: #ccfbf1;
-    --color-accent-dark: #2dd4bf;
-    --color-accent-dark-hover: #5eead4;
+    --color-accent-dark: #fff;
+    --color-accent-dark-hover: #000;
 }
 
 @layer theme {
     .dark {
-        --color-accent: #2dd4bf;
-        --color-accent-content: #5eead4;
-        --color-accent-foreground: #12151a;
+        --color-accent: #fff;
+        --color-accent-content: #fff;
+        --color-accent-foreground: #000;
     }
 }
 
