@@ -8,6 +8,14 @@ A personal money-out journal used on mobile web (iPhone Safari), hosted on Larav
 A single money-out entry belonging to the Owner (name, integer amount, optional description, spend date).
 _Avoid_: Transaction, purchase, payment (unless meaning money paid out)
 
+**Expense identity**:
+The permanent identifier assigned when an Expense is first recorded on any device; unchanged when synced to the server.
+_Avoid_: Local id, server id, row number, temporary id
+
+**Owner identity**:
+The permanent identifier assigned when an Owner account is provisioned; unchanged for the life of the account.
+_Avoid_: Session id, login token, row number
+
 **Spend date** (`spent_on`):
 The calendar day the money was spent; drives Today and Monthly. Defaults to today; may be backdated.
 _Avoid_: Created at, logged at (those are audit timestamps)
@@ -43,6 +51,9 @@ _Avoid_: Welcome page, marketing landing, treating `/` as Home/Today
 ## Relationships
 
 - An **Owner** has many **Expenses**
+- An **Expense** belongs to exactly one **Owner** (required; no orphan expenses)
+- An **Expense** receives its **Expense identity** at first capture; sync does not reassign it
+- An **Owner** receives its **Owner identity** at provision; it does not change
 - An **Expense** has exactly one **Spend date**
 - **Today** and **Monthly** are views over **Expenses** filtered by **Spend date** in Asia/Yangon
 - **Ks** labels the integer **amount** on an **Expense**
@@ -68,4 +79,5 @@ _Avoid_: Welcome page, marketing landing, treating `/` as Home/Today
 - UI component kit (Flux Free on Blade controllers) lives in `docs/adr/0002-flux-free-blade-ui-kit.md`, not in this glossary.
 - Mobile always-visible **Today** / **Monthly** top destinations (icons on small screens, text on desktop; no hamburger) live in `docs/adr/0003-mobile-top-primary-destinations.md`, not in this glossary.
 - **Expense** aggregate caching (Owner-scoped day/month rollups, not lists) lives in `docs/adr/0004-owner-scoped-expense-aggregate-cache.md`, not in this glossary.
+- **Owner identity** and **Expense identity** (stable, client-authoritative, UUID v7 in implementation) live in `docs/adr/0005-uuid-v7-domain-identities.md`, not in this glossary.
 - “Public launch later” means a future multi-user phase (many ledger accounts, registration model TBD) — it does **not** change the current MVP: one **Owner**, **Closed registration**. Do not redefine **Owner** until that phase is designed.
