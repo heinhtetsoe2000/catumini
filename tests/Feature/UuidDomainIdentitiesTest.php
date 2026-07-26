@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 test('domain tables use uuid primary keys', function () {
-    expect(Schema::getColumnType('users', 'id'))->not->toBe('integer')
-        ->and(Schema::getColumnType('expenses', 'id'))->not->toBe('integer');
+    expect(Schema::getColumnType('users', 'id'))->toBeIn(['char', 'varchar', 'uuid'])
+        ->and(Schema::getColumnType('expenses', 'id'))->toBeIn(['char', 'varchar', 'uuid']);
 });
 
 test('new user and expense receive uuid v7 primary keys', function () {

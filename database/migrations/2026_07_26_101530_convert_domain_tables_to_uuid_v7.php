@@ -83,6 +83,12 @@ return new class extends Migration
 
         Schema::drop('expenses_legacy');
 
+        if (Schema::hasTable('sessions') && Schema::hasColumn('sessions', 'user_id')) {
+            Schema::table('sessions', function (Blueprint $table): void {
+                $table->uuid('user_id')->nullable()->change();
+            });
+        }
+
         Schema::enableForeignKeyConstraints();
 
         DB::table('sessions')->truncate();
@@ -153,6 +159,6 @@ return new class extends Migration
             return false;
         }
 
-        return Schema::getColumnType('users', 'id') !== 'integer';
+        return in_array(Schema::getColumnType('users', 'id'), ['char', 'varchar', 'uuid'], true);
     }
 };

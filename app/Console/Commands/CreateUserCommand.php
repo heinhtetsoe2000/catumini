@@ -71,7 +71,7 @@ class CreateUserCommand extends Command
 
         $user->forceFill(['email_verified_at' => now()])->save();
 
-        $this->info("User [{$user->email}] created successfully.");
+        $this->info("User [{$resolvedName}] created successfully.");
 
         return self::SUCCESS;
     }
