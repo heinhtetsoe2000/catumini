@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Database\Factories\ExpenseFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 class Expense extends Model
 {
     /** @use HasFactory<ExpenseFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'name',
@@ -33,7 +34,6 @@ class Expense extends Model
     {
         return [
             'amount' => 'integer',
-            'user_id' => 'integer',
             'spent_on' => 'date',
         ];
     }
@@ -67,6 +67,6 @@ class Expense extends Model
 
     public function isOwnedBy(?User $user): bool
     {
-        return $user !== null && (int) $this->user_id === (int) $user->id;
+        return $user !== null && $this->user_id === $user->id;
     }
 }

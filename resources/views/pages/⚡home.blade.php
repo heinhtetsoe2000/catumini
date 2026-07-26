@@ -94,7 +94,7 @@ new class extends Component
     private function calculateTotal(): void
     {
         $this->total = $this->aggregateCache()->dayTotal(
-            (int) auth()->id(),
+            auth()->id(),
             Carbon::parse($this->spent_on)
         );
     }
@@ -102,7 +102,7 @@ new class extends Component
     private function calculateAverage(): void
     {
         $dailyTotals = collect($this->aggregateCache()->monthDayTotals(
-            (int) auth()->id(),
+            auth()->id(),
             now()
         ));
 

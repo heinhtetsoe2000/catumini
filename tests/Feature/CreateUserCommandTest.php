@@ -8,7 +8,7 @@ test('user create command creates a login-ready user with email and password', f
         '--email' => 'owner@example.com',
         '--password' => 'password',
     ])->assertSuccessful()
-        ->expectsOutputToContain('User [owner@example.com] created successfully.');
+        ->expectsOutputToContain('User [owner] created successfully.');
 
     $user = User::query()->where('email', 'owner@example.com')->first();
 

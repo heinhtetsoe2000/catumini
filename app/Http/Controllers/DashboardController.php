@@ -13,7 +13,7 @@ class DashboardController extends Controller
     public function index(Request $request, ExpenseAggregateCache $expenseAggregateCache): View
     {
         $dayTotals = $expenseAggregateCache->monthDayTotals(
-            (int) $request->user()->id,
+            $request->user()->id,
             now()
         );
 

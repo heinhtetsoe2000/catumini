@@ -11,17 +11,17 @@ class ExpenseAggregateCache
 {
     public const TTL_SECONDS = 86400;
 
-    public function dayKey(int $ownerId, CarbonInterface $day): string
+    public function dayKey(string $ownerId, CarbonInterface $day): string
     {
-        return sprintf('owner:%d:day:%s', $ownerId, $this->yangonDay($day));
+        return sprintf('owner:%s:day:%s', $ownerId, $this->yangonDay($day));
     }
 
-    public function monthKey(int $ownerId, CarbonInterface $month): string
+    public function monthKey(string $ownerId, CarbonInterface $month): string
     {
-        return sprintf('owner:%d:month:%s', $ownerId, $this->yangonMonth($month));
+        return sprintf('owner:%s:month:%s', $ownerId, $this->yangonMonth($month));
     }
 
-    public function dayTotal(int $ownerId, CarbonInterface $day): int
+    public function dayTotal(string $ownerId, CarbonInterface $day): int
     {
         return (int) Cache::remember(
             $this->dayKey($ownerId, $day),
@@ -36,7 +36,7 @@ class ExpenseAggregateCache
     /**
      * @return array<string, int> Spend date (Y-m-d) => day sum
      */
-    public function monthDayTotals(int $ownerId, CarbonInterface $month): array
+    public function monthDayTotals(string $ownerId, CarbonInterface $month): array
     {
         return Cache::remember(
             $this->monthKey($ownerId, $month),
@@ -64,7 +64,7 @@ class ExpenseAggregateCache
 
     public function invalidateForExpense(Expense $expense): void
     {
-        $ownerId = (int) $expense->user_id;
+        $ownerId = (string) $expense->user_id;
         $dates = [$this->carbonFromSpentOn($expense->spent_on)];
 
         if ($expense->wasChanged('spent_on')) {
@@ -78,7 +78,7 @@ class ExpenseAggregateCache
         $this->invalidateSpendDates($ownerId, ...$dates);
     }
 
-    public function invalidateSpendDates(int $ownerId, CarbonInterface ...$dates): void
+    public function invalidateSpendDates(string $ownerId, CarbonInterface ...$dates): void
     {
         $forgottenDays = [];
         $forgottenMonths = [];
