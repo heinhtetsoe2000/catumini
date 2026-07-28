@@ -18,7 +18,7 @@
                 @class([
                     'rounded-full px-3 py-1 text-sm font-medium transition',
                     'bg-black text-white dark:bg-white dark:text-black' => $currentLanguage === $language,
-                    'text-ink-muted hover:text-ink dark:text-ink-soft dark:hover:text-ink-invert' => $currentLanguage !== $language,
+                    'hover:text-ink dark:text-ink-soft dark:hover:text-ink-invert' => $currentLanguage !== $language,
                 ])
             >
                 {{ $language->label() }}

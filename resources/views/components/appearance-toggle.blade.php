@@ -19,7 +19,7 @@
                 @class([
                     'rounded-full px-3 py-1 text-sm font-medium transition',
                     'bg-black text-white dark:bg-white dark:text-black' => $currentAppearance === $appearance,
-                    'text-ink-muted hover:text-ink dark:text-ink-soft dark:hover:text-ink-invert' => $currentAppearance !== $appearance,
+                    'hover:text-ink dark:text-ink-soft dark:hover:text-ink-invert' => $currentAppearance !== $appearance,
                 ])
             >
                 {{ $appearance->label() }}

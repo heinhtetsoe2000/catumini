@@ -22,7 +22,7 @@
                     <x-application-wordmark class="text-4xl sm:text-5xl" />
                 </h1>
 
-                <p class="gate-enter-delay-1 mt-4 text-base text-ink-muted dark:text-ink-soft">
+                <p class="gate-enter-delay-1 mt-4 text-base dark:text-ink-soft">
                     {{ __('Your personal expense ledger.') }}
                 </p>
 

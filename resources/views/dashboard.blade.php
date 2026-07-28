@@ -21,7 +21,7 @@
             @forelse ($expenses as $date => $amount)
                 <x-expense-record :date="$date" :amount="$amount" />
             @empty
-                <flux:text class="my-4 text-center text-ink-muted">{{ __('No expenses this month') }}</flux:text>
+                <flux:text class="my-4 text-center">{{ __('No expenses this month') }}</flux:text>
             @endforelse
         </div>
     </div>
