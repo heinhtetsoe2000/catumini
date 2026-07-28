@@ -4,11 +4,11 @@
 <x-app-layout>
     <div>
         <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-            <flux:text class="text-center text-sm text-ink-muted mb-2">
+            <flux:text class="text-center mb-4">
                 {{ ExpenseDayLabel::forMonth(now()) }}
             </flux:text>
 
-            <h1 class="text-center text-4xl font-bold mb-2">
+            <h1 class="text-center text-4xl font-bold mb-4">
                 {{ number_format($total) }} {{ __('Ks') }}
             </h1>
 

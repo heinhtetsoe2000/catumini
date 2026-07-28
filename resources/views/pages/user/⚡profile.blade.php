@@ -98,10 +98,10 @@ new class extends Component
             <flux:avatar name="{{ $user->name }}" size="xl" color="auto" />
             <div>
                 <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">{{ $user->name }}</flux:heading>
-                <flux:text class="text-sm text-ink-muted">{{ $user->email }}</flux:text>
+                <flux:text class="text-sm">{{ $user->email }}</flux:text>
             </div>
         </div>
-        <flux:text class="mt-2 mb-4 text-sm text-ink-muted">
+        <flux:text class="mt-2 mb-4 text-sm">
             {{ __('Joined') }} - {{ ExpenseDayLabel::forProfile($user->created_at) }}
         </flux:text>
         <div class="flex justify-between gap-2">

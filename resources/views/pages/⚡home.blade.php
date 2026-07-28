@@ -132,10 +132,10 @@ new class extends Component
             </flux:button>
 
             <div>
-                <flux:text class="text-center font-bold text-ink-muted" wire:transition>
+                <flux:text class="text-center font-bold mb-4" wire:transition>
                     {{ ExpenseDayLabel::forHeader(Carbon::parse($spent_on)) }}
                 </flux:text>
-                <h1 class="text-center text-4xl font-bold" wire:transition>
+                <h1 class="text-center text-4xl font-bold mb-4" wire:transition>
                     {{ number_format($total) }} {{ __('Ks') }}
                 </h1>
             </div>
