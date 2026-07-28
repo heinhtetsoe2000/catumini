@@ -8,6 +8,11 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+html[lang='my'] {
+    --font-sans: 'Noto Sans Myanmar', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: 'Noto Serif Myanmar', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
 @theme {
     --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     --font-serif: 'Source Serif 4', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;

@@ -68,28 +68,28 @@ new class extends Component
                 <flux:text class="text-left text-sm truncate max-w-[10rem] sm:max-w-[13rem] text-black dark:text-white">{{ $description }}</flux:text>
             @endif
         </div>
-        <flux:text class="text-left text-lg font-bold text-black dark:text-white in-data-loading:hidden">{{ number_format($amount) }} Ks</flux:text>
+        <flux:text class="text-left text-lg font-bold text-black dark:text-white in-data-loading:hidden">{{ number_format($amount) }} {{ __('Ks') }}</flux:text>
     </button>
 
     <flux:modal name="edit-expense-{{ $expense->id }}" class="w-90 md:w-auto">
         <div class="space-y-6">
-            <flux:heading size="lg">Edit Expense</flux:heading>
+            <flux:heading size="lg">{{ __('Edit Expense') }}</flux:heading>
 
             <form wire:submit="update" class="space-y-4">
                 @csrf
 
-                <flux:input name="name" wire:model="name" placeholder="Expense name" required />
+                <flux:input name="name" wire:model="name" :placeholder="__('Name')" required />
 
                 <div class="flex items-center justify-between gap-2">
-                    <flux:input name="amount" type="number" wire:model="amount" placeholder="Amount (Ks)" min="0" step="1" required />
+                    <flux:input name="amount" type="number" wire:model="amount" :placeholder="__('Amount (Ks)')" min="0" step="1" required />
                     <flux:input name="spent_on" type="date" wire:model="spent_on" required />
                 </div>
 
-                <flux:textarea name="description" wire:model="description" placeholder="Description">{{ $this->description }}</flux:textarea>
+                <flux:textarea name="description" wire:model="description" :placeholder="__('Description')">{{ $this->description }}</flux:textarea>
 
                 <div class="flex justify-between gap-2">
-                    <flux:button class="w-full" variant="danger" wire:click="openDeleteModal">Delete</flux:button>
-                    <flux:button class="w-full" variant="primary" color="zinc" type="submit">Update</flux:button>
+                    <flux:button class="w-full" variant="danger" wire:click="openDeleteModal">{{ __('Delete') }}</flux:button>
+                    <flux:button class="w-full" variant="primary" color="zinc" type="submit">{{ __('Update') }}</flux:button>
                 </div>
             </form>
         </div>
@@ -97,16 +97,16 @@ new class extends Component
 
     <flux:modal name="delete-expense-{{ $expense->id }}" class="w-90 md:w-auto">
         <div class="space-y-6">
-            <flux:heading size="lg">Delete "{{ $name }}"</flux:heading>
+            <flux:heading size="lg">{{ __('Delete') }} "{{ $name }}"</flux:heading>
 
             <form wire:submit="delete" class="space-y-4">
                 @csrf
 
                 <div class="flex justify-between gap-2">
                     <flux:modal.close>
-                        <flux:button variant="ghost">Cancel</flux:button>
+                        <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
                     </flux:modal.close>
-                    <flux:button class="w-full" variant="danger" type="submit">Delete</flux:button>
+                    <flux:button class="w-full" variant="danger" type="submit">{{ __('Delete') }}</flux:button>
                 </div>
             </form>
         </div>

@@ -7,9 +7,9 @@ it('shows the login gate for guests', function () {
 
     $response->assertSuccessful();
     $response->assertSee(config('app.name'), false);
-    $response->assertSee('Your personal expense ledger.', false);
+    $response->assertSee(__('Your personal expense ledger.'), false);
     $response->assertSee(route('login'), false);
-    $response->assertSee('Login', false);
+    $response->assertSee(__('Login'), false);
     $response->assertDontSee('Register', false);
     $response->assertDontSee('nativephp.com', false);
     $response->assertDontSee('discord.gg/nativephp', false);

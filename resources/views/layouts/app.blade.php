@@ -10,11 +10,12 @@
         <link rel="icon" href="/logo.png" type="image/png">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=source-sans-3:400,500,600|source-serif-4:600,700&display=swap" rel="stylesheet" />
+        <x-locale-fonts />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
         @fluxAppearance
+        <x-resolved-appearance />
     </head>
     <body class="min-h-screen font-sans antialiased nativephp-safe-area bg-white text-ink dark:bg-black dark:text-ink-invert">
         @include('layouts.navigation')

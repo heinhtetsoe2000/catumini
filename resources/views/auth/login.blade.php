@@ -8,7 +8,7 @@
             id="email"
             type="email"
             name="email"
-            label="Email"
+            :label="__('Email')"
             value="{{ old('email') }}"
             required
             autofocus
@@ -19,7 +19,7 @@
             id="password"
             type="password"
             name="password"
-            label="Password"
+            :label="__('Password')"
             required
             autocomplete="current-password"
         />

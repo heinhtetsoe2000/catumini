@@ -1,11 +1,10 @@
-@props(['expense' => null, 'name' => null, 'amount' => null, 'description' => null])
+@props(['expense' => null, 'name' => null, 'amount' => null, 'description' => null, 'date' => null])
 
 @php
-    $today = now()->format('D M d');
-    $yesterday = now()->subDay()->format('D M d');
-    $isToday = $name == $today;
-    $isYesterday = $name == $yesterday;
-    $displayName = $expense?->name ?? ($isToday ? 'Today' : ($isYesterday ? 'Yesterday' : $name));
+    use App\Support\ExpenseDayLabel;
+
+    $displayName = $expense?->name
+        ?? ($date !== null ? ExpenseDayLabel::forDateString($date) : ($name ?? ''));
     $displayAmount = $expense?->amount ?? $amount;
     $displayDescription = $expense?->description ?? $description;
 @endphp

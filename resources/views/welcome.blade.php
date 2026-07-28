@@ -8,10 +8,11 @@
         <title>{{ config('app.name') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=source-sans-3:400,500,600|source-serif-4:600,700&display=swap" rel="stylesheet" />
+        <x-locale-fonts />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @fluxAppearance
+        <x-resolved-appearance />
     </head>
     <body class="font-sans antialiased text-ink dark:text-ink-invert">
         <main class="flex min-h-screen flex-col items-center justify-center bg-white px-6 dark:bg-black">
@@ -22,12 +23,16 @@
                 </h1>
 
                 <p class="gate-enter-delay-1 mt-4 text-base text-ink-muted dark:text-ink-soft">
-                    Your personal expense ledger.
+                    {{ __('Your personal expense ledger.') }}
                 </p>
 
-                <div class="gate-enter-delay-2 mt-10 flex justify-center">
+                <div class="gate-enter-delay-2 mt-6 flex justify-center">
+                    <x-display-language-toggle />
+                </div>
+
+                <div class="gate-enter-delay-2 mt-6 flex justify-center">
                     <flux:button :href="route('login')" variant="primary" color="zinc" class="w-full sm:w-auto">
-                        Login
+                        {{ __('Login') }}
                     </flux:button>
                 </div>
             </div>
