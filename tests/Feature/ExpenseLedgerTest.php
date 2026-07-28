@@ -222,7 +222,10 @@ test('home summary compares spend to the monthly daily average', function () {
     Livewire::actingAs($user)
         ->test('pages::home')
         ->assertSet('showAISummary', true)
-        ->assertSee('You have spent 2,000 Ks more than the average.');
+        ->assertSee(__('You have spent :amount Ks :direction than the average.', [
+            'amount' => '2,000',
+            'direction' => __('more'),
+        ]));
 });
 
 test('AI summary is hidden when day spend equals the monthly average', function () {

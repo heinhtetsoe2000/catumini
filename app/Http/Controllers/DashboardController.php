@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Services\ExpenseAggregateCache;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -21,7 +20,7 @@ class DashboardController extends Controller
         $expenses = collect($dayTotals)
             ->sortKeysDesc()
             ->mapWithKeys(fn (int $amount, string $spentOn): array => [
-                Carbon::parse($spentOn)->format('D M d') => $amount,
+                $spentOn => $amount,
             ]);
 
         $total = (int) $expenses->sum();

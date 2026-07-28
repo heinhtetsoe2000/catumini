@@ -3,6 +3,7 @@
 use Livewire\Component;
 use App\Models\Expense;
 use App\Services\ExpenseAggregateCache;
+use App\Support\ExpenseDayLabel;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
 use Livewire\Attributes\Transition;
@@ -131,11 +132,11 @@ new class extends Component
             </flux:button>
 
             <div>
-                <flux:text class="text-center font-bold text-ink-muted" wire:transition>
-                    {{ Carbon::parse($spent_on)->isToday() ? __('Today') : Carbon::parse($spent_on)->format('M d') }}
+                <flux:text class="text-center font-bold mb-4" wire:transition>
+                    {{ ExpenseDayLabel::forHeader(Carbon::parse($spent_on)) }}
                 </flux:text>
-                <h1 class="text-center text-4xl font-bold" wire:transition>
-                    {{ number_format($total) }} Ks
+                <h1 class="text-center text-4xl font-bold mb-4" wire:transition>
+                    {{ number_format($total) }} {{ __('Ks') }}
                 </h1>
             </div>
 
@@ -147,7 +148,7 @@ new class extends Component
         <flux:separator class="my-4" />
 
         <flux:modal.trigger name="add-expense">
-            <flux:button icon="plus" class="w-full" variant="primary" color="zinc">Add Expense</flux:button>
+            <flux:button icon="plus" class="w-full" variant="primary" color="zinc">{{ __('Add Expense') }}</flux:button>
         </flux:modal.trigger>
     </flux:card>
 
@@ -155,7 +156,10 @@ new class extends Component
         <flux:callout.heading>{{ __('AI Summary') }}</flux:callout.heading>
 
         <flux:callout.text>
-            You have spent {{ number_format(abs($difference)) }} Ks {{ $difference > 0 ? 'more' : 'less' }} than the average.
+            {{ __('You have spent :amount Ks :direction than the average.', [
+                'amount' => number_format(abs($difference)),
+                'direction' => $difference > 0 ? __('more') : __('less'),
+            ]) }}
         </flux:callout.text>
     </flux:callout>
 
@@ -167,31 +171,31 @@ new class extends Component
                 <flux:separator />
             @endif
         @empty
-            <flux:text class="my-4 text-center text-black dark:text-white">No expenses this month</flux:text>
+            <flux:text class="my-4 text-center text-black dark:text-white">{{ __('No expenses this day') }}</flux:text>
         @endforelse
     </div>
 
     <flux:modal name="add-expense" class="w-90 md:w-auto">
         <div class="space-y-6">
-            <flux:heading size="lg">Add Expense</flux:heading>
+            <flux:heading size="lg">{{ __('Add Expense') }}</flux:heading>
 
             <form wire:submit="save" class="space-y-4">
                 @csrf
 
-                <flux:input name="name" wire:model="name" placeholder="Name" required />
+                <flux:input name="name" wire:model="name" :placeholder="__('Name')" required />
 
                 <div class="flex items-center justify-between gap-2">
-                    <flux:input name="amount" type="number" wire:model="amount" placeholder="Amount (Ks)" min="0" step="1" required />
+                    <flux:input name="amount" type="number" wire:model="amount" :placeholder="__('Amount (Ks)')" min="0" step="1" required />
                     <flux:input name="spent_on" type="date" wire:model="spent_on" required />
                 </div>
 
-                <flux:textarea name="description" wire:model="description" placeholder="Description">{{ $this->description }}</flux:textarea>
+                <flux:textarea name="description" wire:model="description" :placeholder="__('Description')">{{ $this->description }}</flux:textarea>
 
                 <div class="flex justify-between gap-2">
                     <flux:modal.close>
-                        <flux:button variant="ghost">Cancel</flux:button>
+                        <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
                     </flux:modal.close>
-                    <flux:button class="w-full" variant="primary" color="zinc" type="submit">Add</flux:button>
+                    <flux:button class="w-full" variant="primary" color="zinc" type="submit">{{ __('Add') }}</flux:button>
                 </div>
             </form>
         </div>

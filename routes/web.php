@@ -1,8 +1,17 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DisplayPreferenceController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/preferences/display-language', [DisplayPreferenceController::class, 'updateDisplayLanguage'])
+    ->name('preferences.display-language');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/preferences/appearance', [DisplayPreferenceController::class, 'updateAppearance'])
+        ->name('preferences.appearance');
+});
 
 Route::get('/', function () {
     if (auth()->check()) {

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\Appearance;
+use App\Enums\DisplayLanguage;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -23,6 +25,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'display_language',
+        'appearance',
     ];
 
     /**
@@ -45,6 +49,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'display_language' => DisplayLanguage::class,
+            'appearance' => Appearance::class,
         ];
     }
 }

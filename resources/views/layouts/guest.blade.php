@@ -8,10 +8,11 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=source-sans-3:400,500,600|source-serif-4:600,700&display=swap" rel="stylesheet" />
+        <x-locale-fonts />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @fluxAppearance
+        <x-resolved-appearance />
     </head>
     <body class="font-sans text-black dark:text-white antialiased">
         <div class="flex h-screen items-center justify-center bg-white pt-6 sm:justify-center sm:pt-0 dark:bg-black">
