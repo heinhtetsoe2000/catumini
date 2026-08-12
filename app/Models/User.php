@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -27,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'display_language',
         'appearance',
+        'income_tracking',
     ];
 
     /**
@@ -51,6 +53,17 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'display_language' => DisplayLanguage::class,
             'appearance' => Appearance::class,
+            'income_tracking' => 'boolean',
         ];
+    }
+
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    public function incomes(): HasMany
+    {
+        return $this->hasMany(Income::class);
     }
 }

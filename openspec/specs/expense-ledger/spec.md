@@ -66,13 +66,6 @@ The system SHALL group and total the authenticated user's expenses for the curre
 - **WHEN** the authenticated user has no expenses in the current month
 - **THEN** the Monthly view loads without error and shows zero totals (no divide-by-zero)
 
-### Requirement: Expenses only
-The system SHALL track money-out expenses only; income and transfers are out of scope for this capability.
-
-#### Scenario: No income entry path
-- **WHEN** a user uses the MVP expense flows
-- **THEN** there is no UI or API for recording income
-
 ### Requirement: Day headers follow display language
 Expense day group headers and relative day labels (including **Today** and **Yesterday**) in Today and Monthly views MUST render in the active **Display language** using the Gregorian calendar in `Asia/Yangon`.
 

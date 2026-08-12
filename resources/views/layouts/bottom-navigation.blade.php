@@ -7,6 +7,15 @@
             :current="request()->routeIs('home')"
             aria-label="{{ __('Home') }}"
         />
+        @if (Auth::user()->income_tracking)
+            <flux:navbar.item
+                :href="route('income')"
+                icon="banknotes"
+                wire:navigate
+                :current="request()->routeIs('income')"
+                aria-label="{{ __('Income') }}"
+            />
+        @endif
         <flux:navbar.item
             :href="route('dashboard')"
             icon="calendar-days"
