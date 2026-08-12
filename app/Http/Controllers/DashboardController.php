@@ -26,6 +26,24 @@ class DashboardController extends Controller
         $total = (int) $expenses->sum();
         $average = $expenses->count() > 0 ? (int) round($expenses->avg()) : 0;
 
-        return view('dashboard', compact('expenses', 'total', 'average'));
+        $incomeTracking = (bool) $request->user()->income_tracking;
+        $monthReceived = 0;
+        $monthSpent = $total;
+        $available = 0;
+
+        if ($incomeTracking) {
+            $monthReceived = $expenseAggregateCache->monthIncomeTotal($request->user()->id, now());
+            $available = $expenseAggregateCache->available($request->user()->id);
+        }
+
+        return view('dashboard', compact(
+            'expenses',
+            'total',
+            'average',
+            'incomeTracking',
+            'monthReceived',
+            'monthSpent',
+            'available',
+        ));
     }
 }

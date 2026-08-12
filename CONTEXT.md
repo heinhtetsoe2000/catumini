@@ -1,6 +1,6 @@
 # Personal Expense Ledger
 
-A personal money-out journal used on mobile web (iPhone Safari), hosted on Laravel Cloud. NativePHP / store releases are out of scope until Mac access exists.
+A personal money journal used on mobile web (iPhone Safari), hosted on Laravel Cloud. The core is money-out (**Expense**) tracking; optional **Income tracking** adds money-in entries and **Available** balance context. NativePHP / store releases are out of scope until Mac access exists.
 
 ## Language
 
@@ -21,12 +21,40 @@ The calendar day the money was spent; drives Today and Monthly. Defaults to toda
 _Avoid_: Created at, logged at (those are audit timestamps)
 
 **Today**:
-The Owner's expenses whose spend date is the current calendar day in Asia/Yangon, plus that day's total. Day headers and relative labels (e.g. yesterday) follow **Display language**; the underlying calendar stays Gregorian in Asia/Yangon.
+The Owner's expenses whose spend date is the current calendar day in Asia/Yangon, plus that day's total. When **Income tracking** is on, **Home** also shows a compact strip with today's spent and global **Available**. Day headers and relative labels (e.g. yesterday) follow **Display language**; the underlying calendar stays Gregorian in Asia/Yangon.
 _Avoid_: Home feed keyed off `created_at`, Buddhist calendar in MVP
 
 **Monthly**:
-The Owner's expenses for the current calendar month in Asia/Yangon, grouped by spend day, with month total.
+The Owner's expenses for the current calendar month in Asia/Yangon, grouped by spend day, with month total. When **Income tracking** is on, **History** also shows current-month received and spent totals plus a compact **Available** strip.
 _Avoid_: Dashboard analytics, reports, budgets
+
+**Income**:
+A single money-in entry belonging to the Owner (name, integer amount, optional description, received date).
+_Avoid_: Transaction, deposit (as a domain term), payment (unless meaning money received)
+
+**Income identity**:
+The permanent identifier assigned when an Income is first recorded; unchanged when synced to the server.
+_Avoid_: Local id, server id, row number, temporary id
+
+**Received date** (`received_on`):
+The calendar day the money was received; drives the **Income** tab list ordering and month grouping. Defaults to today; may be backdated.
+_Avoid_: Created at, logged at (those are audit timestamps)
+
+**Available**:
+Total received minus total spent (all-time, carry-over, no monthly reset). Before the Owner's first **Income** row, **Available** displays as zero everywhere; after that, it reflects honest math including negative amounts (shown with alarm styling, never blocking expense entry).
+_Avoid_: Remaining, balance (as amount label), left to spend, net worth, bank balance
+
+**Month net**:
+Current calendar month in Asia/Yangon: month received minus month spent. Informational only on the **Income** tab; not the spendable **Available** amount.
+_Avoid_: Monthly budget, envelope, rollover limit
+
+**Income tracking**:
+Owner preference (Profile toggle, default off, instant apply) that enables the **Income** nav destination, income CRUD, and **Available** strips on **Home** and **History**. Off hides all income UI; income rows are kept in storage.
+_Avoid_: Budget mode, wallet account, feature flag (implementation term)
+
+**Income** (nav destination):
+Primary shell destination when **Income tracking** is on; shows month received / spent / **month net**, global **Available**, all-time income list, and add-income. Sits between **Home** and **History**; absent when tracking is off. Mobile: icon-only with accessible name **Income**; desktop: text label **Income**.
+_Avoid_: Balance (tab name), Wallet, Dashboard
 
 **Ks**:
 The display label for whole-unit currency amounts (integer only; no decimals in MVP). Amounts use Western digits with grouping in every **Display language**.
@@ -58,13 +86,18 @@ _Avoid_: Welcome page, marketing landing, treating `/` as Home/Today
 
 ## Relationships
 
-- An **Owner** has many **Expenses**
+- An **Owner** has many **Expenses** and many **Incomes** (when **Income tracking** is used)
 - An **Expense** belongs to exactly one **Owner** (required; no orphan expenses)
+- An **Income** belongs to exactly one **Owner** (required; no orphan incomes)
 - An **Expense** receives its **Expense identity** at first capture; sync does not reassign it
+- An **Income** receives its **Income identity** at first capture; sync does not reassign it
 - An **Owner** receives its **Owner identity** at provision; it does not change
-- An **Expense** has exactly one **Spend date**
+- An **Expense** has exactly one **Spend date**; an **Income** has exactly one **Received date**
 - **Today** and **Monthly** are views over **Expenses** filtered by **Spend date** in Asia/Yangon
-- **Ks** labels the integer **amount** on an **Expense**
+- **Available** is derived from all **Income** amounts minus all **Expense** amounts for the Owner (with the pre-first-income zero display rule)
+- **Month net** is derived from current-month **Income** minus current-month **Expense** for the Owner
+- **Ks** labels the integer **amount** on an **Expense** or **Income**
+- **Income tracking** off means no **Income** nav, no income forms, and no **Available** strips; **Expense** flows are unchanged
 - A guest reaches the ledger through the **Login gate**; an authenticated **Owner** opening `/` goes to **Today**
 - Before login, **Display language** may follow browser preference or a remembered cookie; after login, the Owner's saved **Display language** on their account is canonical
 - Before login, **Appearance** may follow a remembered cookie or OS; after login, the Owner's saved **Appearance** on their account is canonical; default is **System** when unset
@@ -79,6 +112,12 @@ _Avoid_: Welcome page, marketing landing, treating `/` as Home/Today
 > **Dev:** "Is the page at `/` the Home screen?"
 > **Domain expert:** "No — that's the **Login gate**. **Home** in the nav is **Today**. If you're already signed in, `/` should take you straight to **Today**."
 
+> **Dev:** "Owner enabled **Income tracking** but only has expenses — what does **Available** show?"
+> **Domain expert:** **Zero** until they log their first **Income**. After that, total received minus total spent, even if negative."
+
+> **Dev:** "Does **Available** reset on the first of the month?"
+> **Domain expert:** "No — it carries over. **Month net** on the **Income** tab is the current-month snapshot only."
+
 ## Flagged ambiguities
 
 - "Home" in the nav means the **Today** view (`/home`), not a marketing landing page or the **Login gate**.
@@ -90,7 +129,8 @@ _Avoid_: Welcome page, marketing landing, treating `/` as Home/Today
 - Visual system decisions live in `docs/adr/0001-ledger-ink-visual-system.md`, not in this glossary.
 - When **Display language** is Burmese, body and title fonts switch to Myanmar-capable web fonts; English keeps the ledger ink typefaces from ADR 0001.
 - UI component kit (Flux Free on Blade controllers) lives in `docs/adr/0002-flux-free-blade-ui-kit.md`, not in this glossary.
-- Mobile always-visible **Today** / **Monthly** top destinations (icons on small screens, text on desktop; no hamburger) live in `docs/adr/0003-mobile-top-primary-destinations.md`, not in this glossary.
+- Mobile always-visible **Today** / **Monthly** top destinations (icons on small screens, text on desktop; no hamburger) live in `docs/adr/0003-mobile-top-primary-destinations.md`, not in this glossary. When **Income tracking** is on, conditional **Income** nav between **Home** and **History** lives in `docs/adr/0007-conditional-income-nav-destination.md`.
+- **Available** and income aggregate caching live in `docs/adr/0008-owner-scoped-available-aggregate-cache.md`, not in this glossary.
 - **Expense** aggregate caching (Owner-scoped day/month rollups, not lists) lives in `docs/adr/0004-owner-scoped-expense-aggregate-cache.md`, not in this glossary.
 - **Owner identity** and **Expense identity** (stable, client-authoritative, UUID v7 in implementation) live in `docs/adr/0005-uuid-v7-domain-identities.md`, not in this glossary.
 - **Display language** and **Appearance** (Owner-scoped preferences, guest cookie bridge, shipping order) live in `docs/adr/0006-owner-display-preferences.md`, not in this glossary.

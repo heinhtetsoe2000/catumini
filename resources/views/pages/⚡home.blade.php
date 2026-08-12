@@ -26,14 +26,22 @@ new class extends Component
 
     public bool $showAISummary = false;
 
+    public int $todaySpent = 0;
+
+    public int $available = 0;
+
+    public bool $incomeTracking = false;
+
     public Collection $expenses;
 
     public function mount()
     {
         $this->spent_on = now()->toDateString();
+        $this->incomeTracking = (bool) auth()->user()->income_tracking;
         $this->calculateTotal();
         $this->calculateAverage();
         $this->calculateDifference();
+        $this->refreshBalanceStrip();
         $this->showAISummary();
         $this->expenses = Expense::today()->currentUser()->orderBy('created_at', 'desc')->get();
     }
@@ -49,6 +57,7 @@ new class extends Component
         $this->spent_on = Carbon::parse($this->spent_on)->subDay()->toDateString();
         $this->calculateTotal();
         $this->calculateDifference();
+        $this->refreshBalanceStrip();
         $this->showAISummary();
         $this->expenses = Expense::ofDay(Carbon::parse($this->spent_on))->currentUser()->orderBy('created_at', 'desc')->get();
     }
@@ -59,6 +68,7 @@ new class extends Component
         $this->spent_on = Carbon::parse($this->spent_on)->addDay()->toDateString();
         $this->calculateTotal();
         $this->calculateDifference();
+        $this->refreshBalanceStrip();
         $this->showAISummary();
         $this->expenses = Expense::ofDay(Carbon::parse($this->spent_on))->currentUser()->orderBy('created_at', 'desc')->get();
     }
@@ -80,6 +90,7 @@ new class extends Component
         $this->calculateTotal();
         $this->calculateAverage();
         $this->calculateDifference();
+        $this->refreshBalanceStrip();
         $this->showAISummary();
         $this->expenses = Expense::today()->currentUser()->orderBy('created_at', 'desc')->get();
     }
@@ -89,7 +100,21 @@ new class extends Component
         $this->calculateTotal();
         $this->calculateAverage();
         $this->calculateDifference();
+        $this->refreshBalanceStrip();
         $this->showAISummary();
+    }
+
+    private function refreshBalanceStrip(): void
+    {
+        if (! $this->incomeTracking) {
+            return;
+        }
+
+        $cache = $this->aggregateCache();
+        $ownerId = auth()->id();
+
+        $this->todaySpent = $cache->dayTotal($ownerId, now());
+        $this->available = $cache->available($ownerId);
     }
 
     private function calculateTotal(): void
@@ -125,31 +150,53 @@ new class extends Component
 ?>
 
 <div>
-    <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between gap-4">
-            <flux:button variant="ghost" wire:click="previousDay">
+    @if ($incomeTracking)
+        <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between gap-4 text-center">
+                <div class="text-left">
+                    <flux:text class="text-sm">{{ __('Available') }}</flux:text>
+                    <flux:text class="font-bold" color="green"><x-available-amount :amount="$available" /></flux:text>
+                </div>
+                <div>
+                    <flux:modal.trigger name="add-expense">
+                        <flux:button icon="plus" variant="primary" color="zinc">{{ __('Add Expense') }}</flux:button>
+                    </flux:modal.trigger>
+                </div>
+            </div>
+        </flux:card>
+    @endif
+
+    <div class="mx-auto m-4 w-90 md:w-auto max-w-2xl flex items-center justify-between gap-4 mb-4">
+        <div>
+            <flux:text class="text-center font-bold" wire:transition>
+                {{ ExpenseDayLabel::forHeader(Carbon::parse($spent_on)) }}
+            </flux:text>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <flux:button wire:click="previousDay">
                 <flux:icon name="chevron-left" />
             </flux:button>
 
-            <div>
-                <flux:text class="text-center font-bold mb-4" wire:transition>
-                    {{ ExpenseDayLabel::forHeader(Carbon::parse($spent_on)) }}
-                </flux:text>
-                <h1 class="text-center text-4xl font-bold mb-4" wire:transition>
-                    {{ number_format($total) }} {{ __('Ks') }}
-                </h1>
-            </div>
-
-            <flux:button variant="ghost" wire:click="nextDay" :disabled="Carbon::parse($spent_on)->isToday()" class="{{ Carbon::parse($spent_on)->isToday() ? 'opacity-50 cursor-not-allowed' : '' }}">
+            <flux:button wire:click="nextDay" :disabled="Carbon::parse($spent_on)->isToday()" class="{{ Carbon::parse($spent_on)->isToday() ? 'opacity-50 cursor-not-allowed' : '' }}">
                 <flux:icon name="chevron-right" />
             </flux:button>
         </div>
+    </div>
 
-        <flux:separator class="my-4" />
+    <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+        <h1 class="text-center text-4xl font-bold my-4" wire:transition>
+            {{ number_format($total) }} {{ __('Ks') }}
+        </h1>
 
-        <flux:modal.trigger name="add-expense">
-            <flux:button icon="plus" class="w-full" variant="primary" color="zinc">{{ __('Add Expense') }}</flux:button>
-        </flux:modal.trigger>
+        @if (!$incomeTracking)
+
+            <flux:separator class="my-4" />
+        
+            <flux:modal.trigger name="add-expense">
+                <flux:button icon="plus" class="w-full" variant="primary" color="zinc">{{ __('Add Expense') }}</flux:button>
+            </flux:modal.trigger>
+        @endif
     </flux:card>
 
     <flux:callout wire:show="showAISummary" icon="sparkles" color="purple" class="w-90 md:w-auto mx-auto max-w-2xl" x-transition.duration.500ms>

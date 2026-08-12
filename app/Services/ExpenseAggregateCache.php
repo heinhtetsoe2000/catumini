@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Expense;
+use App\Models\Income;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Cache;
@@ -19,6 +20,21 @@ class ExpenseAggregateCache
     public function monthKey(string $ownerId, CarbonInterface $month): string
     {
         return sprintf('owner:%s:month:%s', $ownerId, $this->yangonMonth($month));
+    }
+
+    public function totalReceivedKey(string $ownerId): string
+    {
+        return sprintf('owner:%s:income:total', $ownerId);
+    }
+
+    public function totalSpentKey(string $ownerId): string
+    {
+        return sprintf('owner:%s:expense:total', $ownerId);
+    }
+
+    public function monthIncomeKey(string $ownerId, CarbonInterface $month): string
+    {
+        return sprintf('owner:%s:month:%s:income', $ownerId, $this->yangonMonth($month));
     }
 
     public function dayTotal(string $ownerId, CarbonInterface $day): int
@@ -62,6 +78,54 @@ class ExpenseAggregateCache
         );
     }
 
+    public function totalReceived(string $ownerId): int
+    {
+        return (int) Cache::remember(
+            $this->totalReceivedKey($ownerId),
+            self::TTL_SECONDS,
+            fn (): int => (int) Income::query()
+                ->where('user_id', $ownerId)
+                ->sum('amount')
+        );
+    }
+
+    public function totalSpent(string $ownerId): int
+    {
+        return (int) Cache::remember(
+            $this->totalSpentKey($ownerId),
+            self::TTL_SECONDS,
+            fn (): int => (int) Expense::query()
+                ->where('user_id', $ownerId)
+                ->sum('amount')
+        );
+    }
+
+    public function monthIncomeTotal(string $ownerId, CarbonInterface $month): int
+    {
+        return (int) Cache::remember(
+            $this->monthIncomeKey($ownerId, $month),
+            self::TTL_SECONDS,
+            function () use ($ownerId, $month): int {
+                $anchor = Carbon::parse($this->yangonDay($month), $this->timezone());
+
+                return (int) Income::query()
+                    ->where('user_id', $ownerId)
+                    ->whereYear('received_on', $anchor->year)
+                    ->whereMonth('received_on', $anchor->month)
+                    ->sum('amount');
+            }
+        );
+    }
+
+    public function available(string $ownerId): int
+    {
+        if (! Income::query()->where('user_id', $ownerId)->exists()) {
+            return 0;
+        }
+
+        return $this->totalReceived($ownerId) - $this->totalSpent($ownerId);
+    }
+
     public function invalidateForExpense(Expense $expense): void
     {
         $ownerId = (string) $expense->user_id;
@@ -76,6 +140,24 @@ class ExpenseAggregateCache
         }
 
         $this->invalidateSpendDates($ownerId, ...$dates);
+        $this->invalidateGlobalTotals($ownerId);
+    }
+
+    public function invalidateForIncome(Income $income): void
+    {
+        $ownerId = (string) $income->user_id;
+        $dates = [$this->carbonFromReceivedOn($income->received_on)];
+
+        if ($income->wasChanged('received_on')) {
+            $original = $income->getOriginal('received_on');
+
+            if ($original !== null) {
+                $dates[] = $this->carbonFromReceivedOn($original);
+            }
+        }
+
+        $this->invalidateGlobalTotals($ownerId);
+        $this->invalidateMonthIncome($ownerId, ...$dates);
     }
 
     public function invalidateSpendDates(string $ownerId, CarbonInterface ...$dates): void
@@ -99,6 +181,26 @@ class ExpenseAggregateCache
         }
     }
 
+    public function invalidateGlobalTotals(string $ownerId): void
+    {
+        Cache::forget($this->totalReceivedKey($ownerId));
+        Cache::forget($this->totalSpentKey($ownerId));
+    }
+
+    public function invalidateMonthIncome(string $ownerId, CarbonInterface ...$months): void
+    {
+        $forgottenMonths = [];
+
+        foreach ($months as $month) {
+            $key = $this->yangonMonth($month);
+
+            if (! isset($forgottenMonths[$key])) {
+                Cache::forget($this->monthIncomeKey($ownerId, $month));
+                $forgottenMonths[$key] = true;
+            }
+        }
+    }
+
     private function yangonDay(CarbonInterface $day): string
     {
         return Carbon::parse($day->format('Y-m-d'), $this->timezone())->toDateString();
@@ -112,6 +214,11 @@ class ExpenseAggregateCache
     private function carbonFromSpentOn(mixed $spentOn): CarbonInterface
     {
         return Carbon::parse($spentOn, $this->timezone());
+    }
+
+    private function carbonFromReceivedOn(mixed $receivedOn): CarbonInterface
+    {
+        return Carbon::parse($receivedOn, $this->timezone());
     }
 
     private function timezone(): string

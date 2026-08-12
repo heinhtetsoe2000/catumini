@@ -159,6 +159,19 @@ new class extends Component
             <x-appearance-toggle />
         </div>
 
+        <flux:separator class="my-4" />
+
+        <div class="flex justify-between items-center gap-2 mt-4">
+            <div class="flex items-center justify-left gap-2">
+                <flux:icon.banknotes />
+                <flux:heading size="md" class="text-lg font-bold capitalize">
+                    {{ __('Income tracking') }}
+                </flux:heading>
+            </div>
+
+            <x-income-tracking-toggle :enabled="$user->income_tracking" />
+        </div>
+
     </flux:card>
 
     <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">

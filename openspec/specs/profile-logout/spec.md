@@ -39,3 +39,15 @@ The Profile page SHALL include a **Light | Dark | System** segmented **Appearanc
 - **WHEN** an authenticated Owner selects `Dark` on Profile
 - **THEN** the User `appearance` is updated to `dark`
 - **AND** the UI renders in dark mode
+
+### Requirement: Profile exposes income tracking toggle
+The Profile page SHALL include an **On | Off** segmented **Income tracking** toggle that applies immediately without submitting the profile information form.
+
+#### Scenario: Income tracking toggle visible on Profile
+- **WHEN** an authenticated Owner opens Profile
+- **THEN** the response includes an On | Off segmented control for **Income tracking**
+
+#### Scenario: Income tracking toggle persists Owner preference
+- **WHEN** an authenticated Owner selects **On** on Profile
+- **THEN** the User `income_tracking` is updated to `true`
+- **AND** the **Income** nav destination becomes available on the next page load
