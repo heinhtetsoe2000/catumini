@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisplayPreferenceController;
 use App\Http\Controllers\IncomeTrackingController;
 use App\Http\Controllers\ProfileController;
@@ -27,12 +26,7 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::livewire('/home', 'pages::home')->name('home');
     Route::livewire('/income', 'pages::income')->name('income');
-});
-
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    // Route::get('/profile', UserProfile::class)->name('profile');
+    Route::livewire('/dashboard', 'pages::dashboard')->name('dashboard');
     Route::livewire('/profile', 'pages::user.profile')->name('profile');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

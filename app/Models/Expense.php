@@ -58,6 +58,13 @@ class Expense extends Model
         return $query->whereDate('spent_on', $day->toDateString());
     }
 
+    public function scopeOfMonth(Builder $query, Carbon $carbon): Builder
+    {
+        return $query
+            ->whereYear('spent_on', $carbon->year)
+            ->whereMonth('spent_on', $carbon->month);
+    }
+
     public function scopeMonthly(Builder $query): Builder
     {
         return $query

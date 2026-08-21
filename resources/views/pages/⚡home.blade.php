@@ -239,9 +239,7 @@ new class extends Component
                 <flux:textarea name="description" wire:model="description" :placeholder="__('Description')">{{ $this->description }}</flux:textarea>
 
                 <div class="flex justify-between gap-2">
-                    <flux:modal.close>
-                        <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
-                    </flux:modal.close>
+                    <flux:button class="w-full" variant="outline" color="zinc" x-on:click="$flux.modal('add-expense').close()">{{ __('Cancel') }}</flux:button>
                     <flux:button class="w-full" variant="primary" color="zinc" type="submit">{{ __('Add') }}</flux:button>
                 </div>
             </form>
