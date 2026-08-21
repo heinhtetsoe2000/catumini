@@ -32,7 +32,7 @@
             {{ $slot }}
         </main>
 
-        @include('layouts.bottom-navigation')
+        {{-- @include('layouts.bottom-navigation') --}}
 
         <flux:toast.group position="top center">
             <flux:toast />
