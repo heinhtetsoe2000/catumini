@@ -13,7 +13,6 @@ test('owner can create income with default received date of today', function () 
         ->set('name', 'Salary')
         ->set('amount', 350000)
         ->set('description', 'Monthly')
-        ->set('received_on', now()->toDateString())
         ->call('save')
         ->assertHasNoErrors();
 
@@ -41,26 +40,51 @@ test('owner can create income with backdated received date', function () {
         ->toBe($receivedOn);
 });
 
-test('income page lists all incomes newest first across months', function () {
+test('income page lists current month incomes newest first', function () {
     $user = User::factory()->withIncomeTracking()->create();
 
     Income::factory()->create([
         'user_id' => $user->id,
-        'name' => 'Old pay',
+        'name' => 'Earlier pay',
         'amount' => 1000,
-        'received_on' => now()->subMonth()->toDateString(),
+        'received_on' => now()->subDays(2)->toDateString(),
     ]);
 
     Income::factory()->create([
         'user_id' => $user->id,
-        'name' => 'New pay',
+        'name' => 'Later pay',
         'amount' => 2000,
         'received_on' => now()->toDateString(),
     ]);
 
     Livewire::actingAs($user)
         ->test('pages::income')
-        ->assertSeeInOrder(['New pay', 'Old pay']);
+        ->assertSeeInOrder(['Later pay', 'Earlier pay']);
+});
+
+test('income page can navigate to the previous month', function () {
+    $user = User::factory()->withIncomeTracking()->create();
+
+    Income::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Previous month pay',
+        'amount' => 1000,
+        'received_on' => now()->subMonth()->toDateString(),
+    ]);
+
+    Income::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Current month pay',
+        'amount' => 2000,
+        'received_on' => now()->toDateString(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test('pages::income')
+        ->assertSee('Current month pay')
+        ->call('previousMonth')
+        ->assertSee('Previous month pay')
+        ->assertDontSee('Current month pay');
 });
 
 test('owner can update their income', function () {

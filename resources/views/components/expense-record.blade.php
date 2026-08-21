@@ -9,7 +9,7 @@
     $displayDescription = $expense?->description ?? $description;
 @endphp
 
-<div class="my-2 flex flex-wrap items-center justify-between gap-2 overflow-hidden rounded-lg border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-black">
+<div class="w-full flex items-center justify-between gap-2 p-4">
     <div class="flex min-w-0 flex-col">
         <span class="text-lg font-bold text-black dark:text-white">{{ $displayName }}</span>
         @if ($displayDescription)

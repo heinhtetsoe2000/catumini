@@ -4,6 +4,7 @@ use Livewire\Component;
 use App\Models\Income;
 use App\Services\ExpenseAggregateCache;
 use App\Support\ExpenseDayLabel;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 new class extends Component
@@ -36,11 +37,7 @@ new class extends Component
 
         $this->received_on = now()->toDateString();
         $this->refreshTotals();
-        $this->incomes = Income::query()
-            ->currentUser()
-            ->orderByDesc('received_on')
-            ->orderByDesc('created_at')
-            ->get();
+        $this->setIncomes();
     }
 
     public function save(): void
@@ -58,11 +55,7 @@ new class extends Component
         $this->reset('name', 'amount', 'received_on', 'description');
         $this->received_on = now()->toDateString();
         $this->refreshTotals();
-        $this->incomes = Income::query()
-            ->currentUser()
-            ->orderByDesc('received_on')
-            ->orderByDesc('created_at')
-            ->get();
+        $this->setIncomes();
     }
 
     public function handleDeleted(): void
@@ -74,7 +67,7 @@ new class extends Component
     {
         $cache = $this->aggregateCache();
         $ownerId = auth()->id();
-        $month = now();
+        $month = Carbon::parse($this->received_on);
 
         $this->monthReceived = $cache->monthIncomeTotal($ownerId, $month);
         $this->monthSpent = (int) collect($cache->monthDayTotals($ownerId, $month))->sum();
@@ -86,6 +79,32 @@ new class extends Component
     {
         return app(ExpenseAggregateCache::class);
     }
+
+    private function setIncomes(): void
+    {
+        $this->incomes = Income::query()
+            ->ofMonth(Carbon::parse($this->received_on))
+            ->currentUser()
+            ->orderByDesc('received_on')
+            ->orderByDesc('created_at')
+            ->get();
+    }
+
+    #[Transition(type: 'backward')]
+    public function previousMonth()
+    {
+        $this->received_on = Carbon::parse($this->received_on)->subMonth()->toDateString();
+        $this->refreshTotals();
+        $this->setIncomes();
+    }
+
+    #[Transition(type: 'forward')]
+    public function nextMonth()
+    {
+        $this->received_on = Carbon::parse($this->received_on)->addMonth()->toDateString();
+        $this->refreshTotals();
+        $this->setIncomes();
+    }
 };
 ?>
 
@@ -93,7 +112,7 @@ new class extends Component
     <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between gap-4 text-center">
             <div class="text-left">
-                <flux:text class="text-sm">{{ __('Total') }}</flux:text>
+                <flux:text class="text-sm">{{ Carbon::parse($this->received_on)->format('F') }} {{ __('Income') }}</flux:text>
                 <flux:text class="font-bold" color="green">{{ number_format($monthReceived) }} {{ __('Ks') }}</flux:text>
             </div>
             <div>
@@ -103,6 +122,24 @@ new class extends Component
             </div>
         </div>
     </flux:card>
+
+    <div class="mx-auto m-4 w-90 md:w-auto max-w-2xl flex items-center justify-between gap-4 mb-4">
+        <div>
+            <flux:text class="text-center font-bold" wire:transition>
+                {{ ExpenseDayLabel::forMonth(Carbon::parse($received_on)) }}
+            </flux:text>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <flux:button wire:click="previousMonth">
+                <flux:icon name="chevron-left" />
+            </flux:button>
+
+            <flux:button wire:click="nextMonth" :disabled="Carbon::parse($received_on)->isToday()" class="{{ Carbon::parse($received_on)->isToday() ? 'opacity-50 cursor-not-allowed' : '' }}">
+                <flux:icon name="chevron-right" />
+            </flux:button>
+        </div>
+    </div>
 
     <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-4">
@@ -142,9 +179,7 @@ new class extends Component
                 <flux:textarea name="description" wire:model="description" :placeholder="__('Description')">{{ $this->description }}</flux:textarea>
 
                 <div class="flex justify-between gap-2">
-                    <flux:modal.close>
-                        <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
-                    </flux:modal.close>
+                    <flux:button class="w-full" variant="outline" color="zinc" x-on:click="$flux.modal('add-income').close()">{{ __('Cancel') }}</flux:button>
                     <flux:button class="w-full" variant="primary" color="zinc" type="submit">{{ __('Add') }}</flux:button>
                 </div>
             </form>

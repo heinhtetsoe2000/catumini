@@ -58,6 +58,13 @@ class Income extends Model
         return $query->whereDate('received_on', $day->toDateString());
     }
 
+    public function scopeOfMonth(Builder $query, Carbon $carbon): Builder
+    {
+        return $query
+            ->whereYear('received_on', $carbon->year)
+            ->whereMonth('received_on', $carbon->month);
+    }
+
     public function scopeMonthly(Builder $query): Builder
     {
         return $query
