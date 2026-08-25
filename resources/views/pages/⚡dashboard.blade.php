@@ -6,6 +6,9 @@ use App\Services\ExpenseAggregateCache;
 use App\Support\ExpenseDayLabel;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Transition;
 
 new class extends Component
 {
@@ -30,22 +33,35 @@ new class extends Component
     public function mount()
     {
         $this->month = now()->toDateString();
-        $this->incomeTracking = (bool) auth()->user()->income_tracking;
+        $this->incomeTracking = (bool) $this->user->income_tracking;
 
         $this->calculateExpenses();
         $this->calculateIncome();
         $this->setExpenses();
     }
 
+    public function handleDeleted(): void
+    {
+        $this->calculateExpenses();
+        $this->calculateIncome();
+        $this->setExpenses();
+    }
+
+    #[Computed(persist: true)]
+    public function user()
+    {
+        return Auth::user();
+    }
+
     private function setExpenses(): void
     {
-        $this->expenses = Expense::ofMonth(Carbon::parse($this->month))->currentUser()->orderBy('created_at', 'desc')->get();
+        $this->expenses = Expense::ofMonth(Carbon::parse($this->month))->currentUser()->orderBy('spent_on', 'desc')->get()->toBase()->groupBy('spent_on');
     }
 
     private function calculateExpenses(): void
     {
         $dayTotals = $this->aggregateCache()->monthDayTotals(
-            auth()->user()->id,
+            $this->user->id,
             Carbon::parse($this->month)
         );
 
@@ -63,9 +79,9 @@ new class extends Component
     private function calculateIncome(): void
     {
         if ($this->incomeTracking) {
-            $this->monthReceived = $this->aggregateCache()->monthIncomeTotal(auth()->user()->id, Carbon::parse($this->month));
+            $this->monthReceived = $this->aggregateCache()->monthIncomeTotal($this->user->id, Carbon::parse($this->month));
 
-            $this->available = $this->aggregateCache()->available(auth()->user()->id);
+            $this->available = $this->aggregateCache()->available($this->user->id);
         }
     }
 
@@ -172,15 +188,28 @@ new class extends Component
     </div>
 
     <div wire:show="mode == 'all'">
-        <div class="mx-auto m-4 w-90 md:w-auto max-w-2xl bg-white dark:bg-black rounded-xl border border-black/10 dark:border-white/10" wire:transition>
-            @forelse ($expenses as $index => $expense)
-                <x-expense-record :expense="$expense" />
+        <div class="mx-auto m-4 w-90 md:w-auto max-w-2xl" wire:transition>
+            @forelse ($expenses as $spentOn => $expense)
+            <div wire:key="expense-group-{{ $spentOn }}">
+                <div class="flex justify-between items-center gap-2 mb-2">
+                    <flux:heading size="md">{{ ExpenseDayLabel::forDateString($spentOn) }}</flux:heading>
+                    <flux:text>{{ number_format($expense->sum('amount')) }} {{ __('Ks') }}</flux:text>
+                </div>
+                
+                <div class="mx-auto m-4 w-90 md:w-auto max-w-2xl bg-white dark:bg-black rounded-xl border border-black/10 dark:border-white/10" wire:transition>
+                    @foreach ($expense as $e)
+                        <livewire:expense.edit wire:key="expense-{{ $e->id }}" :expense="$e" @deleted="handleDeleted" x-transition.duration.500ms />
 
-                @if ($index !== count($expenses) - 1)
-                <flux:separator />
-            @endif
+                        @if (!$loop->last)
+                        <flux:separator />
+                        @endif
+                    @endforeach
+                </div>
+            </div>
             @empty
+            <div class="mx-auto m-4 w-90 md:w-auto max-w-2xl bg-white dark:bg-black rounded-xl border border-black/10 dark:border-white/10" wire:transition>
                 <flux:text class="my-4 text-center">{{ __('No expenses this month') }}</flux:text>
+            </div>
             @endforelse
         </div>
     </div>

@@ -26,13 +26,18 @@ new class extends Component
     public function update()
     {
         abort_unless($this->expense->isOwnedBy(auth()->user()), 403);
-
-        $this->expense->update($this->validate([
+        
+        $validated = $this->validate([
             'name' => 'required|max:255',
             'amount' => 'required|numeric|min:0',
             'spent_on' => 'required|date',
             'description' => 'nullable|string',
-        ]));
+        ]);
+
+        $validated['name'] = trim($validated['name']);
+        $validated['description'] = trim($validated['description']);
+
+        $this->expense->update($validated);
 
         $this->modal('edit-expense-' . $this->expense->id)->close();
     }

@@ -2,10 +2,13 @@
 
 use Livewire\Component;
 use App\Models\Expense;
+use App\Models\User;
 use App\Services\ExpenseAggregateCache;
 use App\Support\ExpenseDayLabel;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Transition;
 
 new class extends Component
@@ -37,13 +40,19 @@ new class extends Component
     public function mount()
     {
         $this->spent_on = now()->toDateString();
-        $this->incomeTracking = (bool) auth()->user()->income_tracking;
+        $this->incomeTracking = (bool) $this->user->income_tracking;
         $this->calculateTotal();
         $this->calculateAverage();
         $this->calculateDifference();
         $this->refreshBalanceStrip();
         $this->showAISummary();
         $this->expenses = Expense::today()->currentUser()->orderBy('created_at', 'desc')->get();
+    }
+
+    #[Computed(persist: true)]
+    public function user()
+    {
+        return Auth::user();
     }
 
     public function showAISummary(): void
@@ -82,7 +91,10 @@ new class extends Component
             'description' => 'nullable|string',
         ]);
 
-        Expense::create([...$validated, 'user_id' => auth()->id()]);
+        $validated['name'] = trim($validated['name']);
+        $validated['description'] = trim($validated['description']);
+
+        Expense::create([...$validated, 'user_id' => $this->user->id]);
 
         $this->modal('add-expense')->close();
         $this->reset('name', 'amount', 'spent_on', 'description');
@@ -111,16 +123,15 @@ new class extends Component
         }
 
         $cache = $this->aggregateCache();
-        $ownerId = auth()->id();
 
-        $this->todaySpent = $cache->dayTotal($ownerId, now());
-        $this->available = $cache->available($ownerId);
+        $this->todaySpent = $cache->dayTotal($this->user->id, now());
+        $this->available = $cache->available($this->user->id);
     }
 
     private function calculateTotal(): void
     {
         $this->total = $this->aggregateCache()->dayTotal(
-            auth()->id(),
+            $this->user->id,
             Carbon::parse($this->spent_on)
         );
     }
@@ -128,7 +139,7 @@ new class extends Component
     private function calculateAverage(): void
     {
         $dailyTotals = collect($this->aggregateCache()->monthDayTotals(
-            auth()->id(),
+            $this->user->id,
             now()
         ));
 
@@ -200,7 +211,7 @@ new class extends Component
     </flux:card>
 
     <flux:callout wire:show="showAISummary" icon="sparkles" color="purple" class="w-90 md:w-auto mx-auto max-w-2xl" x-transition.duration.500ms>
-        <flux:callout.heading>{{ __('AI Summary') }}</flux:callout.heading>
+        <flux:callout.heading>{{ __('Summary') }}</flux:callout.heading>
 
         <flux:callout.text>
             {{ __('You have spent :amount Ks :direction than the average.', [
@@ -214,7 +225,7 @@ new class extends Component
         @forelse ($expenses as $index => $expense)
             <livewire:expense.edit wire:key="expense-{{ $expense->id }}" :expense="$expense" @deleted="handleDeleted" x-transition.duration.500ms />
 
-            @if ($index !== count($expenses) - 1)
+            @if (!$loop->last)
                 <flux:separator />
             @endif
         @empty

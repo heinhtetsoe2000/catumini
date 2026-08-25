@@ -1,12 +1,15 @@
 <?php
 
+use App\Models\Expense;
 use Livewire\Component;
 use App\Models\User;
+use App\Services\ExpenseAggregateCache;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use App\Support\ExpenseDayLabel;
+use Illuminate\Support\Facades\Cache;
 
 new class extends Component
 {
@@ -72,12 +75,38 @@ new class extends Component
 
         Auth::logout();
 
+        $this->deleteUserExpensesAndIncomes();
         $this->user->delete();
 
         $this->modal('delete-account')->close();
         Flux::toast(variant: 'success', text: __('Account deleted successfully'));
 
         return redirect()->route('login');
+    }
+
+    public function deleteExpensesAndIncomes()
+    {
+        $validated = $this->validate([
+            'password' => 'required|string|max:255',
+        ]);
+
+        if (! Hash::check($validated['password'], $this->user->password)) {
+            return $this->addError('password', __('The provided password is incorrect.'));
+        }
+
+        $this->deleteUserExpensesAndIncomes();
+
+        // TODO: Invalidate the cache
+        Cache::flush();
+
+        $this->modal('delete-expenses-and-incomes')->close();
+        Flux::toast(variant: 'success', text: __('Expenses and incomes deleted successfully'));
+    }
+
+    private function deleteUserExpensesAndIncomes(): void
+    {
+        $this->user->expenses()->delete();
+        $this->user->incomes()->delete();
     }
 
     public function logout()
@@ -130,49 +159,7 @@ new class extends Component
         </flux:callout>
     @endif
 
-    <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-        <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">
-            {{ __('Settings') }}
-        </flux:heading>
-
-        <div class="flex justify-between items-center gap-2 mt-6">
-            <div class="flex items-center justify-left gap-2">
-                <flux:icon.globe-alt />
-                <flux:heading size="md" class="text-lg font-bold capitalize">
-                    {{ __('Display language') }}
-                </flux:heading>
-            </div>
-
-            <x-display-language-toggle />
-        </div>
-
-        <flux:separator class="my-4" />
-
-        <div class="flex justify-between items-center gap-2 mt-4">
-            <div class="flex items-center justify-left gap-2">
-                <flux:icon.sun />
-                <flux:heading size="md" class="text-lg font-bold capitalize">
-                    {{ __('Appearance') }}
-                </flux:heading>
-            </div>
-
-            <x-appearance-toggle />
-        </div>
-
-        <flux:separator class="my-4" />
-
-        <div class="flex justify-between items-center gap-2 mt-4">
-            <div class="flex items-center justify-left gap-2">
-                <flux:icon.banknotes />
-                <flux:heading size="md" class="text-lg font-bold capitalize">
-                    {{ __('Income tracking') }}
-                </flux:heading>
-            </div>
-
-            <x-income-tracking-toggle :enabled="$user->income_tracking" />
-        </div>
-
-    </flux:card>
+    <livewire:settings />
 
     <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
         <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">
@@ -191,9 +178,30 @@ new class extends Component
         <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">
             {{ __('Danger Zone') }}
         </flux:heading>
+
+        <flux:separator class="my-4" />
+
         <flux:subheading class="mt-2 mb-4">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+            {{ __('Delete Expenses & Incomes') }}
         </flux:subheading>
+
+        <flux:text class="mt-2 mb-4">
+            {{ __('Once your expenses and incomes are deleted, they cannot be recovered.') }}
+        </flux:text>
+
+        <flux:modal.trigger name="delete-expenses-and-incomes">
+            <flux:button variant="danger" icon="trash">{{ __('Delete') }}</flux:button>
+        </flux:modal.trigger>
+
+        <flux:separator class="my-4" />
+
+        <flux:subheading class="mt-2 mb-4">
+            {{ __('Delete Account') }}
+        </flux:subheading>
+
+        <flux:text class="mt-2 mb-4">
+            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+        </flux:text>
 
         <flux:modal.trigger name="delete-account">
             <flux:button variant="danger" icon="trash">{{ __('Delete Account') }}</flux:button>
@@ -221,9 +229,7 @@ new class extends Component
                 <flux:input name="new_password_confirmation" type="password" :label="__('Confirm New Password')" wire:model="new_password_confirmation" :placeholder="__('Confirm New Password')" required />
 
                 <div class="flex justify-between gap-2">
-                    <flux:modal.close>
-                        <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
-                    </flux:modal.close>
+                    <flux:button class="w-full" variant="outline" color="zinc" x-on:click="$flux.modal('update-password').close()">{{ __('Cancel') }}</flux:button>
                     <flux:button class="w-full" variant="primary" color="blue" type="submit">{{ __('Update') }}</flux:button>
                 </div>
             </form>
@@ -242,11 +248,28 @@ new class extends Component
                 <flux:input name="email" type="email" :label="__('Email')" wire:model="email" :placeholder="__('Email')" required />
 
                 <div class="flex justify-between gap-2">
-                    <flux:modal.close>
-                        <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
-                    </flux:modal.close>
+                    <flux:button class="w-full" variant="outline" color="zinc" x-on:click="$flux.modal('edit-profile').close()">{{ __('Cancel') }}</flux:button>
                     <flux:button class="w-full" variant="primary" color="blue" type="submit">{{ __('Update') }}</flux:button>
                 </div>
+            </form>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="delete-expenses-and-incomes" class="w-90 md:w-auto">
+        <div class="space-y-6">
+            <flux:heading size="lg">{{ __('Delete Expenses and Incomes') }}</flux:heading>
+            <flux:text class="mt-2 mb-4">
+                {{ __('Once your expenses and incomes are deleted, they cannot be recovered.') }}
+            </flux:text>
+
+            <form wire:submit="deleteExpensesAndIncomes" class="space-y-4">
+                @csrf
+
+                <flux:input name="password" type="password" :label="__('Password')" wire:model="password" :placeholder="__('Password')" required />
+
+                <div class="flex justify-between gap-2">
+                    <flux:button class="w-full" variant="outline" color="zinc" x-on:click="$flux.modal('delete-expenses-and-incomes').close()">{{ __('Cancel') }}</flux:button>
+                    <flux:button class="w-full" variant="danger" type="submit">{{ __('Delete') }}</flux:button>
             </form>
         </div>
     </flux:modal>
@@ -254,6 +277,9 @@ new class extends Component
     <flux:modal name="delete-account" class="w-90 md:w-auto">
         <div class="space-y-6">
             <flux:heading size="lg">{{ __('Delete Account') }}</flux:heading>
+            <flux:text class="mt-2 mb-4">
+                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+            </flux:text>
 
             <form wire:submit="deleteAccount" class="space-y-4">
                 @csrf
@@ -261,9 +287,7 @@ new class extends Component
                 <flux:input name="password" type="password" :label="__('Password')" wire:model="password" :placeholder="__('Password')" required />
 
                 <div class="flex justify-between gap-2">
-                    <flux:modal.close>
-                        <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
-                    </flux:modal.close>
+                    <flux:button class="w-full" variant="outline" color="zinc" x-on:click="$flux.modal('delete-account').close()">{{ __('Cancel') }}</flux:button>
                     <flux:button class="w-full" variant="danger" type="submit">{{ __('Delete Account') }}</flux:button>
             </form>
         </div>

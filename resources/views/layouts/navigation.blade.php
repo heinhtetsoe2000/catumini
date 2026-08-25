@@ -1,84 +1,18 @@
 <nav class="sticky top-0 z-50 border-b border-black/10 bg-white dark:border-white/10 dark:bg-black">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between gap-3">
+            <flux:brand :href="route('home')" logo="logo-with-bg.png" wire:navigate/>
+
             <div class="flex min-w-0 items-center gap-4 sm:gap-8">
-                <flux:brand :href="route('home')" logo="logo-with-bg.png" name="Wallet" />
+                <x-nav-bar.desktop class="hidden sm:flex gap-4" />
 
-                <flux:navbar class="hidden sm:flex">
-                    <flux:navbar.item :href="route('home')" :current="request()->routeIs('home')">
-                        {{ __('Home') }}
-                    </flux:navbar.item>
-                    @if (Auth::user()->income_tracking)
-                        <flux:navbar.item :href="route('income')" :current="request()->routeIs('income')">
-                            {{ __('Income') }}
-                        </flux:navbar.item>
-                    @endif
-                    <flux:navbar.item :href="route('dashboard')" :current="request()->routeIs('dashboard')">
-                        {{ __('History') }}
-                    </flux:navbar.item>
-                </flux:navbar>
-
-                <flux:navbar class="flex justify-center sm:hidden">
-                    <flux:navbar.item
-                        :href="route('home')"
-                        icon="home"
-                        wire:navigate
-                        :current="request()->routeIs('home')"
-                        aria-label="{{ __('Home') }}"
-                    />
-                    @if (Auth::user()->income_tracking)
-                        <flux:navbar.item
-                            :href="route('income')"
-                            icon="banknotes"
-                            wire:navigate
-                            :current="request()->routeIs('income')"
-                            aria-label="{{ __('Income') }}"
-                        />
-                    @endif
-                    <flux:navbar.item
-                        :href="route('dashboard')"
-                        icon="calendar-days"
-                        wire:navigate
-                        :current="request()->routeIs('dashboard')"
-                        aria-label="{{ __('History') }}"
-                    />
-                </flux:navbar>
+                <x-nav-bar.mobile class="flex sm:hidden gap-4" />
             </div>
 
             <div class="flex items-center">
-                <flux:navbar class="flex justify-center sm:hidden">
-                    <flux:navbar.item
-                        :href="route('profile')"
-                        icon="user"
-                        wire:navigate
-                        :current="request()->routeIs('profile')"
-                        aria-label="{{ __('Profile') }}"
-                    />
-                </flux:navbar>
+                <x-nav-profile.desktop class="hidden sm:block" />
 
-                <div class="hidden sm:block">
-                    <flux:dropdown position="bottom" align="end">
-                        <flux:button variant="subtle" icon:trailing="chevron-down">
-                            {{ Auth::user()->name }}
-                        </flux:button>
-
-                        <flux:menu>
-                            <flux:menu.item :href="route('profile')">
-                                {{ __('Profile') }}
-                            </flux:menu.item>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <flux:menu.item
-                                    as="button"
-                                    type="submit"
-                                    class="w-full"
-                                >
-                                    {{ __('Log Out') }}
-                                </flux:menu.item>
-                            </form>
-                        </flux:menu>
-                    </flux:dropdown>
-                </div>
+                <x-nav-profile.mobile class="flex justify-center sm:hidden" />
             </div>
         </div>
     </div>
