@@ -1,6 +1,7 @@
 <?php
 
 use Livewire\Component;
+use Livewire\Attributes\Transition;
 use App\Models\Income;
 use App\Services\ExpenseAggregateCache;
 use App\Support\ExpenseDayLabel;
@@ -48,6 +49,9 @@ new class extends Component
             'received_on' => 'required|date',
             'description' => 'nullable|string',
         ]);
+
+        $validated['name'] = trim($validated['name']);
+        $validated['description'] = trim($validated['description']);
 
         Income::create([...$validated, 'user_id' => auth()->id()]);
 

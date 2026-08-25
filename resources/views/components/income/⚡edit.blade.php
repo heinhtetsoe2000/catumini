@@ -26,13 +26,18 @@ new class extends Component
     public function update(): void
     {
         abort_unless($this->income->isOwnedBy(auth()->user()), 403);
-
-        $this->income->update($this->validate([
+        
+        $validated = $this->validate([
             'name' => 'required|max:255',
             'amount' => 'required|numeric|min:0',
             'received_on' => 'required|date',
             'description' => 'nullable|string',
-        ]));
+        ]);
+
+        $validated['name'] = trim($validated['name']);
+        $validated['description'] = trim($validated['description']);
+
+        $this->income->update($validated);
 
         $this->modal('edit-income-'.$this->income->id)->close();
     }

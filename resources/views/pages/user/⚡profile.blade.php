@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Expense;
 use Livewire\Component;
 use App\Models\User;
 use Flux\Flux;
@@ -72,12 +73,19 @@ new class extends Component
 
         Auth::logout();
 
+        $this->deleteUserExpensesAndIncomes();
         $this->user->delete();
 
         $this->modal('delete-account')->close();
         Flux::toast(variant: 'success', text: __('Account deleted successfully'));
 
         return redirect()->route('login');
+    }
+
+    private function deleteUserExpensesAndIncomes(): void
+    {
+        $this->user->expenses()->delete();
+        $this->user->incomes()->delete();
     }
 
     public function logout()
@@ -130,49 +138,7 @@ new class extends Component
         </flux:callout>
     @endif
 
-    <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-        <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">
-            {{ __('Settings') }}
-        </flux:heading>
-
-        <div class="flex justify-between items-center gap-2 mt-6">
-            <div class="flex items-center justify-left gap-2">
-                <flux:icon.globe-alt />
-                <flux:heading size="md" class="text-lg font-bold capitalize">
-                    {{ __('Display language') }}
-                </flux:heading>
-            </div>
-
-            <x-display-language-toggle />
-        </div>
-
-        <flux:separator class="my-4" />
-
-        <div class="flex justify-between items-center gap-2 mt-4">
-            <div class="flex items-center justify-left gap-2">
-                <flux:icon.sun />
-                <flux:heading size="md" class="text-lg font-bold capitalize">
-                    {{ __('Appearance') }}
-                </flux:heading>
-            </div>
-
-            <x-appearance-toggle />
-        </div>
-
-        <flux:separator class="my-4" />
-
-        <div class="flex justify-between items-center gap-2 mt-4">
-            <div class="flex items-center justify-left gap-2">
-                <flux:icon.banknotes />
-                <flux:heading size="md" class="text-lg font-bold capitalize">
-                    {{ __('Income tracking') }}
-                </flux:heading>
-            </div>
-
-            <x-income-tracking-toggle :enabled="$user->income_tracking" />
-        </div>
-
-    </flux:card>
+    <livewire:settings />
 
     <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
         <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">
@@ -191,9 +157,30 @@ new class extends Component
         <flux:heading size="lg" class="font-bold capitalize text-2xl dark:text-ink-invert">
             {{ __('Danger Zone') }}
         </flux:heading>
+
+        <flux:separator class="my-4" />
+
         <flux:subheading class="mt-2 mb-4">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+            {{ __('Delete Expenses & Incomes') }}
         </flux:subheading>
+
+        <flux:text class="mt-2 mb-4">
+            {{ __('Once your expenses and incomes are deleted, they cannot be recovered.') }}
+        </flux:text>
+
+        <flux:modal.trigger name="delete-account">
+            <flux:button variant="danger" icon="trash">{{ __('Delete') }}</flux:button>
+        </flux:modal.trigger>
+
+        <flux:separator class="my-4" />
+
+        <flux:subheading class="mt-2 mb-4">
+            {{ __('Delete Account') }}
+        </flux:subheading>
+
+        <flux:text class="mt-2 mb-4">
+            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+        </flux:text>
 
         <flux:modal.trigger name="delete-account">
             <flux:button variant="danger" icon="trash">{{ __('Delete Account') }}</flux:button>
