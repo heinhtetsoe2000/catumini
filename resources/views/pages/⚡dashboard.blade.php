@@ -40,6 +40,13 @@ new class extends Component
         $this->setExpenses();
     }
 
+    public function handleDeleted(): void
+    {
+        $this->calculateExpenses();
+        $this->calculateIncome();
+        $this->setExpenses();
+    }
+
     #[Computed(persist: true)]
     public function user()
     {
@@ -200,7 +207,9 @@ new class extends Component
                 </div>
             </div>
             @empty
+            <div class="mx-auto m-4 w-90 md:w-auto max-w-2xl bg-white dark:bg-black rounded-xl border border-black/10 dark:border-white/10" wire:transition>
                 <flux:text class="my-4 text-center">{{ __('No expenses this month') }}</flux:text>
+            </div>
             @endforelse
         </div>
     </div>
