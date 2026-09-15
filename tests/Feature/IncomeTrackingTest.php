@@ -119,7 +119,7 @@ test('history shows month income strip, month spent total, and available when tr
     $this->actingAs($user)
         ->get(route('dashboard'))
         ->assertSuccessful()
-        ->assertSee(now()->format('F') . ' ' . __('Income'))
+        ->assertSee(now()->format('F').' '.__('Income'))
         ->assertSee('300,000')
         ->assertSee(__('Available'))
         ->assertSee('250,000')

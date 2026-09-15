@@ -1,5 +1,9 @@
 <?php
 
+use App\Actions\Expense\GetDailyExpenseTotalAmountByMonthAction;
+use App\Actions\Expense\GetExpensesByDayAction;
+use App\Actions\Expense\GetExpenseTotalAmountByDayAction;
+use App\Actions\Expense\StoreExpenseAction;
 use Livewire\Component;
 use App\Models\Expense;
 use App\Models\User;
@@ -21,32 +25,8 @@ new class extends Component
 
     public string $description = '';
 
-    public int $total = 0;
-
-    public int $average = 0;
-
-    public int $difference = 0;
-
-    public bool $showAISummary = false;
-
-    public int $todaySpent = 0;
-
-    public int $available = 0;
-
-    public bool $incomeTracking = false;
-
-    public Collection $expenses;
-
-    public function mount()
-    {
+    public function mount() {
         $this->spent_on = now()->toDateString();
-        $this->incomeTracking = (bool) $this->user->income_tracking;
-        $this->calculateTotal();
-        $this->calculateAverage();
-        $this->calculateDifference();
-        $this->refreshBalanceStrip();
-        $this->showAISummary();
-        $this->expenses = Expense::today()->currentUser()->orderBy('created_at', 'desc')->get();
     }
 
     #[Computed(persist: true)]
@@ -55,35 +35,65 @@ new class extends Component
         return Auth::user();
     }
 
-    public function showAISummary(): void
+    #[Computed(persist: true)]
+    public function incomeTracking()
     {
-        $this->showAISummary = $this->total != 0 && $this->difference != 0;
+        return (bool) $this->user->income_tracking;
+    }
+
+    #[Computed(persist: true)]
+    public function expenses()
+    {
+        return (new GetExpensesByDayAction)->execute(Carbon::parse($this->spent_on));
+    }
+
+    #[Computed(persist: true)]
+    public function total()
+    {
+        return (new GetExpenseTotalAmountByDayAction)->execute(Carbon::parse($this->spent_on));
+    }
+
+    #[Computed(persist: true)]
+    public function average()
+    {
+        $dailyTotals = collect((new GetDailyExpenseTotalAmountByMonthAction)->execute(Carbon::parse($this->spent_on)));
+
+        return $dailyTotals->isEmpty() ? 0 : (int) round($dailyTotals->avg());
+    }
+
+    #[Computed(persist: true)]
+    public function difference()
+    {
+        return $this->total - $this->average;
+    }
+
+    #[Computed(persist: true)]
+    public function available()
+    {
+        return $this->aggregateCache()->available($this->user->id);
+    }
+
+    #[Computed(persist: true)]
+    public function showAISummary()
+    {
+        return $this->total != 0 && $this->difference != 0;
     }
 
     #[Transition(type: 'backward')]
     public function previousDay()
     {
         $this->spent_on = Carbon::parse($this->spent_on)->subDay()->toDateString();
-        $this->calculateTotal();
-        $this->calculateDifference();
-        $this->refreshBalanceStrip();
-        $this->showAISummary();
-        $this->expenses = Expense::ofDay(Carbon::parse($this->spent_on))->currentUser()->orderBy('created_at', 'desc')->get();
+        $this->updateData();
     }
 
     #[Transition(type: 'forward')]
     public function nextDay()
     {
         $this->spent_on = Carbon::parse($this->spent_on)->addDay()->toDateString();
-        $this->calculateTotal();
-        $this->calculateDifference();
-        $this->refreshBalanceStrip();
-        $this->showAISummary();
-        $this->expenses = Expense::ofDay(Carbon::parse($this->spent_on))->currentUser()->orderBy('created_at', 'desc')->get();
+        $this->updateData();
     }
 
-    public function save()
-    {
+    public function save(StoreExpenseAction $action) {
         $validated = $this->validate([
             'name' => 'required|max:255',
             'amount' => 'required|numeric|min:0',
@@ -91,66 +101,27 @@ new class extends Component
             'description' => 'nullable|string',
         ]);
 
-        $validated['name'] = trim($validated['name']);
-        $validated['description'] = trim($validated['description']);
-
-        Expense::create([...$validated, 'user_id' => $this->user->id]);
+        $action->execute($validated);
 
         $this->modal('add-expense')->close();
         $this->reset('name', 'amount', 'spent_on', 'description');
         $this->spent_on = now()->toDateString();
-        $this->calculateTotal();
-        $this->calculateAverage();
-        $this->calculateDifference();
-        $this->refreshBalanceStrip();
-        $this->showAISummary();
-        $this->expenses = Expense::today()->currentUser()->orderBy('created_at', 'desc')->get();
+        $this->updateData();
     }
 
     public function handleDeleted(): void
     {
-        $this->calculateTotal();
-        $this->calculateAverage();
-        $this->calculateDifference();
-        $this->refreshBalanceStrip();
-        $this->showAISummary();
+        $this->updateData();
     }
 
-    private function refreshBalanceStrip(): void
+    private function updateData()
     {
-        if (! $this->incomeTracking) {
-            return;
-        }
-
-        $cache = $this->aggregateCache();
-
-        $this->todaySpent = $cache->dayTotal($this->user->id, now());
-        $this->available = $cache->available($this->user->id);
-    }
-
-    private function calculateTotal(): void
-    {
-        $this->total = $this->aggregateCache()->dayTotal(
-            $this->user->id,
-            Carbon::parse($this->spent_on)
-        );
-    }
-
-    private function calculateAverage(): void
-    {
-        $dailyTotals = collect($this->aggregateCache()->monthDayTotals(
-            $this->user->id,
-            now()
-        ));
-
-        $this->average = $dailyTotals->isEmpty()
-            ? 0
-            : (int) round($dailyTotals->avg());
-    }
-
-    private function calculateDifference(): void
-    {
-        $this->difference = $this->total - $this->average;
+        unset($this->total); 
+        unset($this->average);
+        unset($this->difference);
+        unset($this->available);
+        unset($this->showAISummary);
+        unset($this->expenses);
     }
 
     private function aggregateCache(): ExpenseAggregateCache
@@ -161,12 +132,12 @@ new class extends Component
 ?>
 
 <div>
-    @if ($incomeTracking)
+    @if ($this->incomeTracking)
         <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between gap-4 text-center">
                 <div class="text-left">
                     <flux:text class="text-sm">{{ __('Available') }}</flux:text>
-                    <flux:text class="font-bold" color="green"><x-available-amount :amount="$available" /></flux:text>
+                    <flux:text class="font-bold" color="green"><x-available-amount :amount="$this->available" /></flux:text>
                 </div>
                 <div>
                     <flux:modal.trigger name="add-expense">
@@ -197,10 +168,10 @@ new class extends Component
 
     <flux:card class="mx-auto m-4 w-90 md:w-auto max-w-2xl px-4 sm:px-6 lg:px-8">
         <h1 class="text-center text-4xl font-bold my-4" wire:transition>
-            {{ number_format($total) }} {{ __('Ks') }}
+            {{ number_format($this->total) }} {{ __('Ks') }}
         </h1>
 
-        @if (!$incomeTracking)
+        @if (!$this->incomeTracking)
 
             <flux:separator class="my-4" />
         
@@ -210,19 +181,19 @@ new class extends Component
         @endif
     </flux:card>
 
-    <flux:callout wire:show="showAISummary" icon="sparkles" color="purple" class="w-90 md:w-auto mx-auto max-w-2xl" x-transition.duration.500ms>
+    <flux:callout wire:show="$this->showAISummary" icon="sparkles" color="purple" class="w-90 md:w-auto mx-auto max-w-2xl" x-transition.duration.500ms>
         <flux:callout.heading>{{ __('Summary') }}</flux:callout.heading>
 
         <flux:callout.text>
             {{ __('You have spent :amount Ks :direction than the average.', [
-                'amount' => number_format(abs($difference)),
-                'direction' => $difference > 0 ? __('more') : __('less'),
+                'amount' => number_format(abs($this->difference)),
+                'direction' => $this->difference > 0 ? __('more') : __('less'),
             ]) }}
         </flux:callout.text>
     </flux:callout>
 
     <div class="mx-auto m-4 w-90 md:w-auto max-w-2xl bg-white dark:bg-black rounded-xl border border-black/10 dark:border-white/10" wire:transition>
-        @forelse ($expenses as $index => $expense)
+        @forelse ($this->expenses as $index => $expense)
             <livewire:expense.edit wire:key="expense-{{ $expense->id }}" :expense="$expense" @deleted="handleDeleted" x-transition.duration.500ms />
 
             @if (!$loop->last)

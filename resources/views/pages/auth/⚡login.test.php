@@ -25,6 +25,6 @@ test('Login page contains forget password link.', function () {
 });
 
 test('Login page contains login button.', function () {
-        Livewire::test('pages::auth.login')
+    Livewire::test('pages::auth.login')
         ->assertsee('Log in');
 });
