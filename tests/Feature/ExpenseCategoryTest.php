@@ -2,6 +2,7 @@
 
 use App\Models\Expense;
 use App\Models\User;
+use App\Support\ExpenseCategoryAppearance;
 use Illuminate\Database\QueryException;
 use Livewire\Livewire;
 
@@ -28,6 +29,95 @@ test('different owners can use the same category name', function () {
 
     expect($firstCategory->user_id)->toBe($firstOwner->id)
         ->and($secondCategory->user_id)->toBe($secondOwner->id);
+});
+
+test('category appearance is optional and persisted', function () {
+    $owner = User::factory()->create();
+    $existingCategory = $owner->expenseCategories()->create(['name' => 'Food']);
+    $styledCategory = $owner->expenseCategories()->create([
+        'name' => 'Travel',
+        'color' => 'sky',
+        'icon' => 'map-pin',
+    ]);
+
+    expect($existingCategory->fresh())
+        ->color->toBeNull()
+        ->icon->toBeNull()
+        ->and($styledCategory->fresh())
+        ->color->toBe('sky')
+        ->icon->toBe('map-pin');
+});
+
+test('category manager validates appearance choices when creating and updating', function () {
+    $owner = User::factory()->create();
+
+    Livewire::actingAs($owner)->test('pages::categories')
+        ->set('name', 'Travel')
+        ->set('color', 'sky')
+        ->set('icon', 'map-pin')
+        ->call('createCategory')
+        ->assertHasNoErrors();
+
+    $category = $owner->expenseCategories()->where('name', 'Travel')->firstOrFail();
+    expect(ExpenseCategoryAppearance::COLORS)->toContain($category->color)
+        ->and(ExpenseCategoryAppearance::ICONS)->toContain($category->icon);
+
+    Livewire::actingAs($owner)->test('pages::categories')
+        ->set('name', 'Invalid')
+        ->set('color', 'red')
+        ->set('icon', 'not-an-icon')
+        ->call('createCategory')
+        ->assertHasErrors(['color', 'icon'])
+        ->call('openRenameModal', $category->id)
+        ->set('editingColor', 'red')
+        ->set('editingIcon', 'not-an-icon')
+        ->call('renameCategory')
+        ->assertHasErrors(['editingColor', 'editingIcon']);
+
+    expect($category->fresh())
+        ->color->toBe('sky')
+        ->icon->toBe('map-pin');
+});
+
+test('owner can create edit and clear category appearance in the category manager', function () {
+    $owner = User::factory()->create();
+
+    Livewire::actingAs($owner)->test('pages::categories')
+        ->assertSee('Category color')
+        ->assertSee('Category icon')
+        ->assertSeeHtml('data-flux-dropdown')
+        ->assertSeeHtml('aria-label="Shopping Cart"')
+        ->assertSeeHtml('class="sr-only"')
+        ->set('name', 'Travel')
+        ->set('color', 'sky')
+        ->set('icon', 'map-pin')
+        ->call('createCategory')
+        ->assertHasNoErrors();
+
+    $category = $owner->expenseCategories()->where('name', 'Travel')->firstOrFail();
+
+    $manager = Livewire::actingAs($owner)->test('pages::categories')
+        ->call('openRenameModal', $category->id)
+        ->assertSet('editingColor', 'sky')
+        ->assertSet('editingIcon', 'map-pin')
+        ->set('editingColor', 'pink')
+        ->set('editingIcon', 'heart')
+        ->call('renameCategory')
+        ->assertHasNoErrors();
+
+    expect($category->fresh())
+        ->color->toBe('pink')
+        ->icon->toBe('heart');
+
+    $manager->call('openRenameModal', $category->id)
+        ->set('editingColor', null)
+        ->set('editingIcon', null)
+        ->call('renameCategory')
+        ->assertHasNoErrors();
+
+    expect($category->fresh())
+        ->color->toBeNull()
+        ->icon->toBeNull();
 });
 
 test('expenses may be uncategorized and survive category deletion', function () {
@@ -89,9 +179,18 @@ test('owner can manage categories without seeing another owners categories', fun
         ->assertSee('No categories yet')
         ->assertDontSee('Private')
         ->set('name', '  Groceries  ')
+        ->set('color', 'sky')
+        ->set('icon', 'shopping-cart')
         ->call('createCategory')
         ->assertHasNoErrors()
         ->assertSee('Groceries')
+        ->assertSeeHtml('flex flex-wrap items-center gap-2')
+        ->assertSeeHtml('data-category-edit-trigger')
+        ->assertSeeHtml('cursor-pointer')
+        ->assertSeeHtml('data-category-preview')
+        ->assertSeeHtml('text-base')
+        ->assertSeeHtml('bg-sky-400/20')
+        ->assertSeeHtml('data-flux-badge-icon')
         ->assertDontSee('Private');
 
     $category = $owner->expenseCategories()->where('name', 'Groceries')->firstOrFail();
@@ -152,6 +251,8 @@ test('owner can confirm deletion of a category and preserve assigned expenses', 
     ]);
 
     Livewire::actingAs($owner)->test('pages::categories')
+        ->call('openRenameModal', $category->id)
+        ->assertSeeHtml('wire:click="openDeleteModal(\''.$category->id.'\')"')
         ->call('openDeleteModal', $category->id)
         ->assertSet('deletingCategoryName', 'Food')
         ->assertSee('Expenses assigned to this category will become uncategorized.')
@@ -224,7 +325,12 @@ test('owner can create an expense without selecting a category', function () {
 
 test('today and monthly expense rows display assigned category names', function () {
     $owner = User::factory()->create();
-    $category = $owner->expenseCategories()->create(['name' => 'Groceries']);
+    $category = $owner->expenseCategories()->create([
+        'name' => 'Groceries',
+        'color' => 'sky',
+        'icon' => 'shopping-cart',
+    ]);
+    $categoryWithoutAppearance = $owner->expenseCategories()->create(['name' => 'Utilities']);
 
     Expense::factory()->create([
         'user_id' => $owner->id,
@@ -234,6 +340,7 @@ test('today and monthly expense rows display assigned category names', function 
     ]);
     Expense::factory()->create([
         'user_id' => $owner->id,
+        'category_id' => $categoryWithoutAppearance->id,
         'name' => 'Coffee',
         'spent_on' => now()->toDateString(),
     ]);
@@ -242,13 +349,27 @@ test('today and monthly expense rows display assigned category names', function 
         ->assertSee('Lunch')
         ->assertSee('Coffee')
         ->assertSeeHtml('data-expense-category')
-        ->assertSee('Groceries');
+        ->assertSee('Groceries')
+        ->assertSee('Utilities')
+        ->assertSeeHtml('bg-sky-400/20')
+        ->assertSeeHtml('bg-zinc-400/15')
+        ->assertSeeHtml('data-flux-badge-icon')
+        ->assertSeeHtml('rounded-full')
+        ->assertSeeHtml('flex min-w-0 flex-col items-start')
+        ->assertSeeHtml('flex shrink-0 flex-col items-end gap-1');
 
     Livewire::actingAs($owner)->test('pages::dashboard')
         ->assertSee('Lunch')
         ->assertSee('Coffee')
         ->assertSeeHtml('data-expense-category')
-        ->assertSee('Groceries');
+        ->assertSee('Groceries')
+        ->assertSee('Utilities')
+        ->assertSeeHtml('bg-sky-400/20')
+        ->assertSeeHtml('bg-zinc-400/15')
+        ->assertSeeHtml('data-flux-badge-icon')
+        ->assertSeeHtml('rounded-full')
+        ->assertSeeHtml('flex min-w-0 flex-col items-start')
+        ->assertSeeHtml('flex shrink-0 flex-col items-end gap-1');
 });
 
 test('today and monthly totals include categorized and uncategorized expenses', function () {

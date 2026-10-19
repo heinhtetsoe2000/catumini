@@ -81,16 +81,18 @@ new class extends Component
 <div>
     <button wire:click="openEditModal" class="w-full flex items-center justify-between gap-2 p-4 data-loading:opacity-50 [&[data-loading]_.icon]:animate-spin">
         <flux:icon.loading class="icon mx-auto not-in-data-loading:hidden" />
-        <div class="in-data-loading:hidden">
+        <div class="flex min-w-0 flex-col items-start in-data-loading:hidden">
             <flux:text class="text-left text-lg font-bold truncate max-w-[10rem] sm:max-w-[13rem] text-black dark:text-white">{{ $name }}</flux:text>
             @if ($description)
                 <flux:text class="text-left text-sm truncate max-w-[10rem] sm:max-w-[13rem] text-black dark:text-white">{{ $description }}</flux:text>
             @endif
-            @if ($expense->category)
-                <flux:badge size="sm" color="zinc" data-expense-category>{{ $expense->category->name }}</flux:badge>
-            @endif
         </div>
-        <flux:text class="text-left text-lg font-bold text-black dark:text-white in-data-loading:hidden">{{ number_format($amount) }} {{ __('Ks') }}</flux:text>
+        <div class="flex shrink-0 flex-col items-end gap-1 in-data-loading:hidden">
+            @if ($expense->category)
+                <flux:badge size="sm" rounded :color="$expense->category->color ?? 'zinc'" :icon="$expense->category->icon" data-expense-category class="max-w-32 truncate">{{ $expense->category->name }}</flux:badge>
+            @endif
+            <flux:text class="text-left text-lg font-bold text-black dark:text-white">{{ number_format($amount) }} {{ __('Ks') }}</flux:text>
+        </div>
     </button>
 
     <flux:modal name="edit-expense-{{ $expense->id }}" class="w-90 md:w-auto">

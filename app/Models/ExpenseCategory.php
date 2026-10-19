@@ -12,7 +12,7 @@ class ExpenseCategory extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'color', 'icon'];
 
     public static function normalizeName(string $name): string
     {
