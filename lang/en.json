@@ -46,5 +46,22 @@
     "Password updated successfully": "Password updated successfully",
     "Account deleted successfully": "Account deleted successfully",
     "The provided password is incorrect.": "The provided password is incorrect.",
-    "Danger Zone": "Danger Zone"
+    "Danger Zone": "Danger Zone",
+    "Categories": "Categories",
+    "Manage your expense categories.": "Manage your expense categories.",
+    "Category name": "Category name",
+    "Category color": "Category color",
+    "Category icon": "Category icon",
+    "No color": "No color",
+    "No icon": "No icon",
+    "Edit Category": "Edit Category",
+    "Add Category": "Add Category",
+    "No categories yet": "No categories yet",
+    "Rename Category": "Rename Category",
+    "Delete Category": "Delete Category",
+    "Expenses assigned to this category will become uncategorized.": "Expenses assigned to this category will become uncategorized.",
+    "A category with this name already exists.": "A category with this name already exists.",
+    "Category": "Category",
+    "No category": "No category",
+    "Save": "Save"
 }

@@ -8,11 +8,15 @@ use Livewire\Component;
 use App\Models\Expense;
 use App\Models\User;
 use App\Services\ExpenseAggregateCache;
+use App\Support\ExpenseCategoryAppearance;
 use App\Support\ExpenseDayLabel;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Transition;
 
 new class extends Component
@@ -25,12 +29,20 @@ new class extends Component
 
     public string $description = '';
 
+    public ?string $category_id = null;
+
     public function mount() {
         $this->spent_on = now()->toDateString();
     }
 
+    #[Computed]
+    public function categories(): EloquentCollection
+    {
+        return $this->user->expenseCategories()->orderBy('name')->get();
+    }
+
     #[Computed(persist: true)]
-    public function user()
+    public function user(): User
     {
         return Auth::user();
     }
@@ -99,17 +111,24 @@ new class extends Component
             'amount' => 'required|numeric|min:0',
             'spent_on' => 'required|date',
             'description' => 'nullable|string',
+            'category_id' => ['nullable', 'uuid', Rule::exists('expense_categories', 'id')->where('user_id', Auth::id())],
         ]);
 
         $action->execute($validated);
 
         $this->modal('add-expense')->close();
-        $this->reset('name', 'amount', 'spent_on', 'description');
+        $this->reset('name', 'amount', 'spent_on', 'description', 'category_id');
         $this->spent_on = now()->toDateString();
         $this->updateData();
     }
 
     public function handleDeleted(): void
+    {
+        $this->updateData();
+    }
+
+    #[On('expense-updated')]
+    public function handleUpdated(): void
     {
         $this->updateData();
     }
@@ -211,7 +230,56 @@ new class extends Component
             <form wire:submit="save" class="space-y-4">
                 @csrf
 
-                <flux:input name="name" wire:model="name" :placeholder="__('Name')" required />
+                <div class="flex items-center justify-between gap-2">
+                    <flux:input name="name" wire:model="name" :placeholder="__('Name')" required />
+                    @php($selectedCategory = $this->categories->firstWhere('id', $category_id))
+                    <flux:dropdown position="bottom" align="end" class="w-28 shrink-0">
+                        <flux:badge
+                            as="button"
+                            type="button"
+                            size="sm"
+                            rounded
+                            :color="$selectedCategory && in_array($selectedCategory->color, ExpenseCategoryAppearance::COLORS, true) ? $selectedCategory->color : 'zinc'"
+                            :icon="$selectedCategory && in_array($selectedCategory->icon, ExpenseCategoryAppearance::ICONS, true) ? $selectedCategory->icon : null"
+                            class="!h-8 w-full justify-between gap-1.5 px-2"
+                            aria-label="{{ __('Category') }}: {{ $selectedCategory?->name ?? __('No category') }}"
+                            data-expense-category-selected
+                        >
+                            <span class="min-w-0 truncate">{{ $selectedCategory?->name ?? __('No category') }}</span>
+                            <flux:icon.chevron-down class="ms-auto size-3 shrink-0" />
+                        </flux:badge>
+                        <flux:menu class="w-48 max-h-56 overflow-y-auto">
+                            <flux:menu.item
+                                as="button"
+                                type="button"
+                                :aria-label="__('No category')"
+                                wire:click="$set('category_id', null)"
+                                class="!py-1"
+                            >
+                                {{ __('No category') }}
+                            </flux:menu.item>
+                            @foreach ($this->categories as $category)
+                                <flux:menu.item
+                                    as="button"
+                                    type="button"
+                                    :aria-label="$category->name"
+                                    wire:click="$set('category_id', '{{ $category->id }}')"
+                                    data-expense-category-option
+                                    class="!py-1"
+                                >
+                                    <flux:badge
+                                        size="sm"
+                                        rounded
+                                        :color="in_array($category->color, ExpenseCategoryAppearance::COLORS, true) ? $category->color : 'zinc'"
+                                        :icon="in_array($category->icon, ExpenseCategoryAppearance::ICONS, true) ? $category->icon : null"
+                                    >
+                                        {{ $category->name }}
+                                    </flux:badge>
+                                </flux:menu.item>
+                            @endforeach
+                        </flux:menu>
+                    </flux:dropdown>
+                </div>
 
                 <div class="flex items-center justify-between gap-2">
                     <flux:input name="amount" type="number" wire:model="amount" :placeholder="__('Amount (Ks)')" min="0" step="1" required />

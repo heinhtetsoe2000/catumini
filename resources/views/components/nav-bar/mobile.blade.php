@@ -17,6 +17,13 @@
             />
         @endif
         <flux:navbar.item
+            :href="route('categories')"
+            icon="tag"
+            wire:navigate
+            :current="request()->routeIs('categories')"
+            aria-label="{{ __('Categories') }}"
+        />
+        <flux:navbar.item
             :href="route('dashboard')"
             icon="calendar-days"
             wire:navigate

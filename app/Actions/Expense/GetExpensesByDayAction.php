@@ -11,7 +11,11 @@ class GetExpensesByDayAction
     public function execute(?Carbon $spentOn = null): Collection
     {
         $spentOn ??= now();
-        
-        return Expense::ofDay($spentOn)->currentUser()->orderBy('created_at', 'desc')->get();
+
+        return Expense::with('category')
+            ->ofDay($spentOn)
+            ->currentUser()
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 }

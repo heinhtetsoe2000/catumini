@@ -54,5 +54,22 @@
     "Email Verification": "အီးမေးလ် အတည်ပြုခြင်း",
     "Your email address is unverified. Click the button below to send a verification link to your email address.": "သင်၏ အီးမေးလ်ကို အတည်မပြုရသေးပါ။ အောက်ပါ ခလုတ်ကို နှိပ်ပြီး အတည်ပြုလင့်ခ် ပို့ပါ။",
     "Verify Email": "အီးမေးလ် အတည်ပြုရန်",
-    "A new verification link has been sent to your email address.": "အတည်ပြုလင့်ခ်အသစ်ကို သင်၏ အီးမေးလ်သို့ ပို့ပြီးပါပြီ။"
+    "A new verification link has been sent to your email address.": "အတည်ပြုလင့်ခ်အသစ်ကို သင်၏ အီးမေးလ်သို့ ပို့ပြီးပါပြီ။",
+    "Categories": "အမျိုးအစားများ",
+    "Manage your expense categories.": "အသုံးစရိတ် အမျိုးအစားများကို စီမံပါ။",
+    "Category name": "အမျိုးအစားအမည်",
+    "Category color": "အမျိုးအစားအရောင်",
+    "Category icon": "အမျိုးအစားအိုင်ကွန်",
+    "No color": "အရောင်မရှိ",
+    "No icon": "အိုင်ကွန်မရှိ",
+    "Edit Category": "အမျိုးအစား ပြင်ရန်",
+    "Add Category": "အမျိုးအစား ထည့်ရန်",
+    "No categories yet": "အမျိုးအစား မရှိသေးပါ",
+    "Rename Category": "အမျိုးအစားအမည် ပြောင်းရန်",
+    "Delete Category": "အမျိုးအစား ဖျက်ရန်",
+    "Expenses assigned to this category will become uncategorized.": "ဤအမျိုးအစားသို့ သတ်မှတ်ထားသော အသုံးစရိတ်များသည် အမျိုးအစားမရှိသော အသုံးစရိတ်များ ဖြစ်လာပါမည်။",
+    "A category with this name already exists.": "ဤအမည်ဖြင့် အမျိုးအစား ရှိပြီးဖြစ်ပါသည်။",
+    "Category": "အမျိုးအစား",
+    "No category": "အမျိုးအစားမရှိ",
+    "Save": "သိမ်းရန်"
 }

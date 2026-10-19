@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Transition;
 
 new class extends Component
@@ -47,6 +48,14 @@ new class extends Component
         $this->setExpenses();
     }
 
+    #[On('expense-updated')]
+    public function handleUpdated(): void
+    {
+        $this->calculateExpenses();
+        $this->calculateIncome();
+        $this->setExpenses();
+    }
+
     #[Computed(persist: true)]
     public function user()
     {
@@ -55,7 +64,13 @@ new class extends Component
 
     private function setExpenses(): void
     {
-        $this->expenses = Expense::ofMonth(Carbon::parse($this->month))->currentUser()->orderBy('spent_on', 'desc')->get()->toBase()->groupBy('spent_on');
+        $this->expenses = Expense::with('category')
+            ->ofMonth(Carbon::parse($this->month))
+            ->currentUser()
+            ->orderBy('spent_on', 'desc')
+            ->get()
+            ->toBase()
+            ->groupBy('spent_on');
     }
 
     private function calculateExpenses(): void

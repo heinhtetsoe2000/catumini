@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Expense;
+use App\Models\Income;
 use App\Models\User;
+use App\Services\ExpenseAggregateCache;
 use Livewire\Livewire;
 
 test('user can create an expense with default spend date of today', function () {
@@ -301,6 +303,65 @@ test('owner can update their expense', function () {
         ->name->toBe('New')
         ->amount->toBe(2500)
         ->description->toBe('Fixed');
+});
+
+test('updating an expense refreshes home aggregates', function () {
+    $user = User::factory()->withIncomeTracking()->create();
+    $day = now()->toDateString();
+
+    Income::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 10000,
+        'received_on' => $day,
+    ]);
+
+    $expense = Expense::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 1000,
+        'spent_on' => $day,
+    ]);
+
+    $home = Livewire::actingAs($user)
+        ->test('pages::home')
+        ->assertSet('total', 1000)
+        ->assertSet('available', 9000);
+    $cache = app(ExpenseAggregateCache::class);
+
+    expect($cache->totalSpent($user->id))->toBe(1000);
+
+    Livewire::actingAs($user)
+        ->test('expense.edit', ['expense' => $expense])
+        ->set('amount', 2500)
+        ->call('update')
+        ->assertDispatched('expense-updated');
+
+    $home->dispatch('expense-updated')
+        ->assertSet('total', 2500)
+        ->assertSet('available', 7500);
+
+    expect($cache->totalSpent($user->id))->toBe(2500);
+});
+
+test('updating an expense refreshes monthly aggregates', function () {
+    $user = User::factory()->create();
+    $expense = Expense::factory()->create([
+        'user_id' => $user->id,
+        'amount' => 1000,
+        'spent_on' => now()->toDateString(),
+    ]);
+
+    $dashboard = Livewire::actingAs($user)
+        ->test('pages::dashboard')
+        ->assertSet('total', 1000);
+
+    Livewire::actingAs($user)
+        ->test('expense.edit', ['expense' => $expense])
+        ->set('amount', 2500)
+        ->call('update')
+        ->assertDispatched('expense-updated');
+
+    $dashboard->dispatch('expense-updated')
+        ->assertSet('total', 2500);
 });
 
 test('owner can hard delete their expense', function () {

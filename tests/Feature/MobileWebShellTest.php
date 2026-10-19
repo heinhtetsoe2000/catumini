@@ -15,6 +15,7 @@ test('today page does not render native edge components', function () {
     $response->assertSee(__('Today'), false);
     $response->assertSee(__('Home'), false);
     $response->assertSee(__('History'), false);
+    $response->assertSee(__('Categories'), false);
     $response->assertSee(__('Profile'), false);
     $response->assertSee(config('app.name'), false);
     $response->assertSee('/logo.png', false);
@@ -51,9 +52,11 @@ test('shell exposes home and history without hamburger drawer', function () {
         ->and($html)->not->toContain('Toggle navigation')
         ->and($html)->toContain(__('Home'))
         ->and($html)->toContain(__('History'))
+        ->and($html)->toContain(__('Categories'))
         ->and($html)->toContain(__('Profile'))
         ->and($html)->toContain(route('home'))
         ->and($html)->toContain(route('dashboard'))
+        ->and($html)->toContain(route('categories'))
         ->and($html)->toContain(route('profile'))
         ->and($html)->not->toContain('native:bottom-nav');
 });
