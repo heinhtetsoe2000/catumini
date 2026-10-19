@@ -8,6 +8,7 @@ use Livewire\Component;
 use App\Models\Expense;
 use App\Models\User;
 use App\Services\ExpenseAggregateCache;
+use App\Support\ExpenseCategoryAppearance;
 use App\Support\ExpenseDayLabel;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -231,12 +232,53 @@ new class extends Component
 
                 <div class="flex items-center justify-between gap-2">
                     <flux:input name="name" wire:model="name" :placeholder="__('Name')" required />
-                    <flux:select name="category_id" wire:model="category_id">
-                        <flux:select.option value="">{{ __('No category') }}</flux:select.option>
-                        @foreach ($this->categories as $category)
-                            <flux:select.option value="{{ $category->id }}">{{ $category->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
+                    @php($selectedCategory = $this->categories->firstWhere('id', $category_id))
+                    <flux:dropdown position="bottom" align="end" class="w-28 shrink-0">
+                        <flux:badge
+                            as="button"
+                            type="button"
+                            size="sm"
+                            rounded
+                            :color="$selectedCategory && in_array($selectedCategory->color, ExpenseCategoryAppearance::COLORS, true) ? $selectedCategory->color : 'zinc'"
+                            :icon="$selectedCategory && in_array($selectedCategory->icon, ExpenseCategoryAppearance::ICONS, true) ? $selectedCategory->icon : null"
+                            class="!h-8 w-full justify-between gap-1.5 px-2"
+                            aria-label="{{ __('Category') }}: {{ $selectedCategory?->name ?? __('No category') }}"
+                            data-expense-category-selected
+                        >
+                            <span class="min-w-0 truncate">{{ $selectedCategory?->name ?? __('No category') }}</span>
+                            <flux:icon.chevron-down class="ms-auto size-3 shrink-0" />
+                        </flux:badge>
+                        <flux:menu class="w-48 max-h-56 overflow-y-auto">
+                            <flux:menu.item
+                                as="button"
+                                type="button"
+                                :aria-label="__('No category')"
+                                wire:click="$set('category_id', null)"
+                                class="!py-1"
+                            >
+                                {{ __('No category') }}
+                            </flux:menu.item>
+                            @foreach ($this->categories as $category)
+                                <flux:menu.item
+                                    as="button"
+                                    type="button"
+                                    :aria-label="$category->name"
+                                    wire:click="$set('category_id', '{{ $category->id }}')"
+                                    data-expense-category-option
+                                    class="!py-1"
+                                >
+                                    <flux:badge
+                                        size="sm"
+                                        rounded
+                                        :color="in_array($category->color, ExpenseCategoryAppearance::COLORS, true) ? $category->color : 'zinc'"
+                                        :icon="in_array($category->icon, ExpenseCategoryAppearance::ICONS, true) ? $category->icon : null"
+                                    >
+                                        {{ $category->name }}
+                                    </flux:badge>
+                                </flux:menu.item>
+                            @endforeach
+                        </flux:menu>
+                    </flux:dropdown>
                 </div>
 
                 <div class="flex items-center justify-between gap-2">

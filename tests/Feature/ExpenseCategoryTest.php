@@ -277,14 +277,30 @@ test('category manager cannot open another owners category', function () {
 test('owner can assign change and clear an expense category', function () {
     $owner = User::factory()->create();
     $otherOwner = User::factory()->create();
-    $food = $owner->expenseCategories()->create(['name' => 'Food']);
-    $travel = $owner->expenseCategories()->create(['name' => 'Travel']);
+    $food = $owner->expenseCategories()->create([
+        'name' => 'Food',
+        'color' => 'sky',
+        'icon' => 'shopping-cart',
+    ]);
+    $travel = $owner->expenseCategories()->create([
+        'name' => 'Travel',
+        'color' => 'rose',
+        'icon' => 'wallet',
+    ]);
     $otherOwner->expenseCategories()->create(['name' => 'Private']);
 
     Livewire::actingAs($owner)->test('pages::home')
         ->assertSee('Food')
         ->assertSee('Travel')
         ->assertDontSee('Private')
+        ->assertSeeHtml('w-28 shrink-0')
+        ->assertSeeHtml('max-h-56')
+        ->assertSeeHtml('data-expense-category-selected')
+        ->assertSee(__('No category'))
+        ->assertSeeHtml('data-expense-category-option')
+        ->assertSeeHtml('bg-sky-400/20')
+        ->assertSeeHtml('bg-rose-400/20')
+        ->assertSeeHtml('data-flux-badge-icon')
         ->set('name', 'Lunch')
         ->set('amount', 4500)
         ->set('spent_on', now()->toDateString())
@@ -295,7 +311,20 @@ test('owner can assign change and clear an expense category', function () {
     $expense = Expense::query()->where('name', 'Lunch')->firstOrFail();
     expect($expense->category_id)->toBe($food->id);
 
+    $uncategorizedExpense = Expense::factory()->create(['user_id' => $owner->id]);
+
+    Livewire::actingAs($owner)->test('expense.edit', ['expense' => $uncategorizedExpense])
+        ->assertSeeHtml('data-expense-category-selected')
+        ->assertSee(__('No category'));
+
     Livewire::actingAs($owner)->test('expense.edit', ['expense' => $expense])
+        ->assertSeeHtml('max-h-56')
+        ->assertSeeHtml('w-28 shrink-0')
+        ->assertSeeHtml('data-expense-category-selected')
+        ->assertSeeHtml('data-expense-category-option')
+        ->assertSeeHtml('bg-sky-400/20')
+        ->assertSeeHtml('bg-rose-400/20')
+        ->assertSeeHtml('data-flux-badge-icon')
         ->set('category_id', $travel->id)
         ->call('update')
         ->assertHasNoErrors();
