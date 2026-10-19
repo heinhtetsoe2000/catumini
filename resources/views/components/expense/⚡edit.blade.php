@@ -38,6 +38,7 @@ new class extends Component
         $validated['description'] = trim($validated['description']);
 
         $this->expense->update($validated);
+        $this->dispatch('expense-updated');
 
         $this->modal('edit-expense-' . $this->expense->id)->close();
     }

@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Transition;
 
 new class extends Component
@@ -110,6 +111,12 @@ new class extends Component
     }
 
     public function handleDeleted(): void
+    {
+        $this->updateData();
+    }
+
+    #[On('expense-updated')]
+    public function handleUpdated(): void
     {
         $this->updateData();
     }

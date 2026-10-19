@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Transition;
 
 new class extends Component
@@ -41,6 +42,14 @@ new class extends Component
     }
 
     public function handleDeleted(): void
+    {
+        $this->calculateExpenses();
+        $this->calculateIncome();
+        $this->setExpenses();
+    }
+
+    #[On('expense-updated')]
+    public function handleUpdated(): void
     {
         $this->calculateExpenses();
         $this->calculateIncome();
