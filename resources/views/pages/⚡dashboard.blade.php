@@ -64,7 +64,13 @@ new class extends Component
 
     private function setExpenses(): void
     {
-        $this->expenses = Expense::ofMonth(Carbon::parse($this->month))->currentUser()->orderBy('spent_on', 'desc')->get()->toBase()->groupBy('spent_on');
+        $this->expenses = Expense::with('category')
+            ->ofMonth(Carbon::parse($this->month))
+            ->currentUser()
+            ->orderBy('spent_on', 'desc')
+            ->get()
+            ->toBase()
+            ->groupBy('spent_on');
     }
 
     private function calculateExpenses(): void

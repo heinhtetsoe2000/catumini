@@ -2,6 +2,9 @@
 
 use Livewire\Component;
 use App\Models\Expense;
+use Illuminate\Validation\Rule;
+use Illuminate\Database\Eloquent\Collection;
+use Livewire\Attributes\Computed;
 
 new class extends Component
 {
@@ -15,12 +18,21 @@ new class extends Component
 
     public ?string $description = '';
 
+    public ?string $category_id = null;
+
     public function mount(Expense $expense)
     {
         $this->name = $expense->name;
         $this->amount = $expense->amount;
         $this->spent_on = $expense->spent_on->toDateString();
         $this->description = $expense->description;
+        $this->category_id = $expense->category_id;
+    }
+
+    #[Computed]
+    public function categories(): Collection
+    {
+        return auth()->user()->expenseCategories()->orderBy('name')->get();
     }
 
     public function update()
@@ -32,6 +44,7 @@ new class extends Component
             'amount' => 'required|numeric|min:0',
             'spent_on' => 'required|date',
             'description' => 'nullable|string',
+            'category_id' => ['nullable', 'uuid', Rule::exists('expense_categories', 'id')->where('user_id', auth()->id())],
         ]);
 
         $validated['name'] = trim($validated['name']);
@@ -73,6 +86,9 @@ new class extends Component
             @if ($description)
                 <flux:text class="text-left text-sm truncate max-w-[10rem] sm:max-w-[13rem] text-black dark:text-white">{{ $description }}</flux:text>
             @endif
+            @if ($expense->category)
+                <flux:badge size="sm" color="zinc" data-expense-category>{{ $expense->category->name }}</flux:badge>
+            @endif
         </div>
         <flux:text class="text-left text-lg font-bold text-black dark:text-white in-data-loading:hidden">{{ number_format($amount) }} {{ __('Ks') }}</flux:text>
     </button>
@@ -90,6 +106,17 @@ new class extends Component
                     <flux:input name="amount" type="number" wire:model="amount" :placeholder="__('Amount (Ks)')" min="0" step="1" required />
                     <flux:input name="spent_on" type="date" wire:model="spent_on" required />
                 </div>
+
+                <flux:field>
+                    <flux:label>{{ __('Category') }}</flux:label>
+                    <flux:select name="category_id" wire:model="category_id">
+                        <flux:select.option value="">{{ __('No category') }}</flux:select.option>
+                        @foreach ($this->categories as $category)
+                            <flux:select.option value="{{ $category->id }}">{{ $category->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error name="category_id" />
+                </flux:field>
 
                 <flux:textarea name="description" wire:model="description" :placeholder="__('Description')">{{ $this->description }}</flux:textarea>
 

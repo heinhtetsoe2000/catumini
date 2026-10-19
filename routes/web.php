@@ -25,6 +25,7 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
     Route::livewire('/home', 'pages::home')->name('home');
+    Route::livewire('/categories', 'pages::categories')->name('categories');
     Route::livewire('/income', 'pages::income')->name('income');
     Route::livewire('/dashboard', 'pages::dashboard')->name('dashboard');
     Route::livewire('/profile', 'pages::user.profile')->name('profile');

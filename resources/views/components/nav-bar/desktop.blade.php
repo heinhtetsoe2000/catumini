@@ -13,6 +13,9 @@
                             {{ __('Income') }}
                         </flux:navbar.item>
                     @endif
+                    <flux:navbar.item :href="route('categories')" :current="request()->routeIs('categories')" icon="tag" wire:navigate>
+                        {{ __('Categories') }}
+                    </flux:navbar.item>
                     <flux:navbar.item :href="route('dashboard')" :current="request()->routeIs('dashboard')" icon="calendar-days" wire:navigate>
                         {{ __('History') }}
                     </flux:navbar.item>

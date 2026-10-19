@@ -10,8 +10,10 @@ use App\Models\User;
 use App\Services\ExpenseAggregateCache;
 use App\Support\ExpenseDayLabel;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Transition;
@@ -26,12 +28,20 @@ new class extends Component
 
     public string $description = '';
 
+    public ?string $category_id = null;
+
     public function mount() {
         $this->spent_on = now()->toDateString();
     }
 
+    #[Computed]
+    public function categories(): EloquentCollection
+    {
+        return $this->user->expenseCategories()->orderBy('name')->get();
+    }
+
     #[Computed(persist: true)]
-    public function user()
+    public function user(): User
     {
         return Auth::user();
     }
@@ -100,12 +110,13 @@ new class extends Component
             'amount' => 'required|numeric|min:0',
             'spent_on' => 'required|date',
             'description' => 'nullable|string',
+            'category_id' => ['nullable', 'uuid', Rule::exists('expense_categories', 'id')->where('user_id', Auth::id())],
         ]);
 
         $action->execute($validated);
 
         $this->modal('add-expense')->close();
-        $this->reset('name', 'amount', 'spent_on', 'description');
+        $this->reset('name', 'amount', 'spent_on', 'description', 'category_id');
         $this->spent_on = now()->toDateString();
         $this->updateData();
     }
@@ -218,7 +229,15 @@ new class extends Component
             <form wire:submit="save" class="space-y-4">
                 @csrf
 
-                <flux:input name="name" wire:model="name" :placeholder="__('Name')" required />
+                <div class="flex items-center justify-between gap-2">
+                    <flux:input name="name" wire:model="name" :placeholder="__('Name')" required />
+                    <flux:select name="category_id" wire:model="category_id">
+                        <flux:select.option value="">{{ __('No category') }}</flux:select.option>
+                        @foreach ($this->categories as $category)
+                            <flux:select.option value="{{ $category->id }}">{{ $category->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </div>
 
                 <div class="flex items-center justify-between gap-2">
                     <flux:input name="amount" type="number" wire:model="amount" :placeholder="__('Amount (Ks)')" min="0" step="1" required />

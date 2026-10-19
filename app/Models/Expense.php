@@ -25,6 +25,7 @@ class Expense extends Model
         'description',
         'user_id',
         'spent_on',
+        'category_id',
     ];
 
     /**
@@ -41,6 +42,11 @@ class Expense extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ExpenseCategory::class, 'category_id');
     }
 
     public function scopeCurrentUser(Builder $query): Builder
